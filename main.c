@@ -1,5 +1,4 @@
 /* C Standard library */
-#include <stdio.h>
 
 /* XDCtools files */
 #include <xdc/std.h>
@@ -12,6 +11,7 @@
 #include <ti/drivers/PIN.h>
 #include <ti/drivers/pin/PINCC26XX.h>
 #include <ti/drivers/I2C.h>
+#include <ti/drivers/i2c/I2CCC26XX.h>
 #include <ti/drivers/Power.h>
 #include <ti/drivers/power/PowerCC26XX.h>
 #include <ti/drivers/UART.h>
@@ -20,11 +20,15 @@
 #include "Board.h"
 #include "wireless/comm_lib.h"
 #include "sensors/opt3001.h"
+#include "sensors/mpu9250.h"
+#include "buzzer/buzzer.h"
+#include "buzzer/songs.h"
 
 /* Task */
 #define STACKSIZE 2048
 Char sensorTaskStack[STACKSIZE];
 Char uartTaskStack[STACKSIZE];
+Char movementTaskStack[STACKSIZE];
 
 // JTKJ: Tehtävä 3. Tilakoneen esittely
 // JTKJ: Exercise 3. Definition of the state machine
@@ -52,6 +56,29 @@ PIN_Config ledConfig[] = {
    PIN_TERMINATE
 };
 
+// MPU power pin global variables
+static PIN_Handle hMpuPin;
+static PIN_State  MpuPinState;
+
+// MPU power pin
+static PIN_Config MpuPinConfig[] = {
+    Board_MPU_POWER  | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL | PIN_DRVSTR_MAX,
+    PIN_TERMINATE
+};
+
+// MPU uses its own I2C interface
+static const I2CCC26XX_I2CPinCfg i2cMPUCfg = {
+    .pinSDA = Board_I2C0_SDA1,
+    .pinSCL = Board_I2C0_SCL1
+};
+
+static PIN_Handle hBuzzer;
+static PIN_State sBuzzer;
+static PIN_Config cBuzzer[] = {
+  Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
+  PIN_TERMINATE
+};
+
 void buttonFxn(PIN_Handle handle, PIN_Id pinId) {
 
     // JTKJ: Tehtävä 1. Vilkuta jompaa kumpaa lediä
@@ -64,6 +91,7 @@ void buttonFxn(PIN_Handle handle, PIN_Id pinId) {
 
 /* Task Functions */
 Void uartTaskFxn(UArg arg0, UArg arg1) {
+    return;
 
     // JTKJ: Tehtävä 4. Lisää UARTin alustus: 9600,8n1
     // JTKJ: Exercise 4. Setup here UART connection as 9600,8n1
@@ -115,6 +143,7 @@ Void uartTaskFxn(UArg arg0, UArg arg1) {
 }
 
 Void sensorTaskFxn(UArg arg0, UArg arg1) {
+    return;
 
     I2C_Handle      i2c;
     I2C_Params      i2cParams;
@@ -159,6 +188,75 @@ Void sensorTaskFxn(UArg arg0, UArg arg1) {
     }
 }
 
+float ax, ay, az, gx, gy, gz;
+
+Void movementTaskFxn(UArg arg0, UArg arg1) {
+
+
+        I2C_Handle i2cMPU; // Own i2c-interface for MPU9250 sensor
+        I2C_Params i2cMPUParams;
+
+        I2C_Params_init(&i2cMPUParams);
+        i2cMPUParams.bitRate = I2C_400kHz;
+        // Note the different configuration below
+        i2cMPUParams.custom = (uintptr_t)&i2cMPUCfg;
+
+        // MPU power on
+        PIN_setOutputValue(hMpuPin,Board_MPU_POWER, Board_MPU_POWER_ON);
+
+        // Wait 100ms for the MPU sensor to power up
+        Task_sleep(1000000 / Clock_tickPeriod);
+        System_printf("MPU9250: Power ON\n");
+        System_flush();
+
+
+
+        // MPU open i2c
+        i2cMPU = I2C_open(Board_I2C, &i2cMPUParams);
+        if (i2cMPU == NULL) {
+            System_abort("Error Initializing I2CMPU\n");
+        }
+
+        // MPU setup and calibration
+        System_printf("MPU9250: Setup and calibration...\n");
+        System_flush();
+
+        mpu9250_setup(&i2cMPU);
+
+        System_printf("MPU9250: Setup and calibration OK\n");
+        System_flush();
+
+        char msg[60];
+
+        buzzerOpen(hBuzzer);
+        buzzerSetFrequency(500);
+        Task_sleep(10 * 100000 / Clock_tickPeriod);
+        buzzerClose();
+
+        Song song = nokia();
+        playSong(&song, hBuzzer);
+
+        // Loop forever
+        while (1) {
+            System_printf("ticks before: %d\n", Clock_getTicks());
+
+            // MPU ask data
+            mpu9250_get_data(&i2cMPU, &ax, &ay, &az, &gx, &gy, &gz);
+            sprintf(msg, "ax: %f, ay: %f, az:%f, gx: %f, gy: %f, gz:%f,\n", ax, ay, az, gx, gy, gz);
+            System_printf(msg);
+            System_printf("ticks before: %d\n", Clock_getTicks());
+
+            // Sleep 100ms
+            // Task_sleep(100000 / Clock_tickPeriod);
+        }
+
+        // Program never gets here..
+        // MPU close i2c
+        // I2C_close(i2cMPU);
+        // MPU power off
+        // PIN_setOutputValue(hMpuPin,Board_MPU_POWER, Board_MPU_POWER_OFF);
+}
+
 Int main(void) {
 
     // Task variables
@@ -166,6 +264,8 @@ Int main(void) {
     Task_Params sensorTaskParams;
     Task_Handle uartTaskHandle;
     Task_Params uartTaskParams;
+    Task_Handle movementTaskHandle;
+    Task_Params movementTaskParams;
 
     // Initialize board
     Board_initGeneral();
@@ -176,7 +276,7 @@ Int main(void) {
     Board_initI2C();
     // JTKJ: Tehtävä 4. Ota UART käyttöön ohjelmassa
     // JTKJ: Exercise 4. Initialize UART
-    Board_initUART();
+    //Board_initUART();
     // JTKJ: Tehtävä 1. Ota painonappi ja ledi ohjelman käyttöön
     //       Muista rekisteröidä keskeytyksen käsittelijä painonapille
     // JTKJ: Exercise 1. Open the button and led pins
@@ -199,6 +299,7 @@ Int main(void) {
     }
 
     /* Task */
+    /*
     Task_Params_init(&sensorTaskParams);
     sensorTaskParams.stackSize = STACKSIZE;
     sensorTaskParams.stack = &sensorTaskStack;
@@ -216,9 +317,24 @@ Int main(void) {
     if (uartTaskHandle == NULL) {
         System_abort("Task create failed!");
     }
+    */
+
+    hMpuPin = PIN_open(&MpuPinState, MpuPinConfig);
+    if (hMpuPin == NULL) {
+        System_abort("Pin open failed!");
+    }
+
+    Task_Params_init(&movementTaskParams);
+    movementTaskParams.stackSize = STACKSIZE;
+    movementTaskParams.stack = &movementTaskStack;
+    movementTaskHandle = Task_create(movementTaskFxn, &movementTaskParams, NULL);
+    if (movementTaskHandle == NULL) {
+        System_abort("Task create failed!");
+    }
 
     /* Sanity check */
     System_printf("Hello world!\n");
+    System_printf("tickperiod is %d\n", Clock_tickPeriod);
     System_flush();
 
     /* Start BIOS */
