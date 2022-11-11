@@ -109,7 +109,7 @@ Song nokia() {
     NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4,
     NOTE_A4, 2, 0};
 
-    // listaan pitää lisätä viimenen 0 ettei mee muisti osoittet sekaisin
+    nokia.size = sizeof(test);
 
     int i;
 

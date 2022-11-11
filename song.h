@@ -7,6 +7,7 @@
 typedef struct Song {
     int tempo;
     int melody[100];
+    int size;
 } Song;
 
 

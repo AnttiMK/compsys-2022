@@ -10,7 +10,7 @@ int playsong() {
     Song temp = nokia();
 
 
-    int notes = sizeof(temp.melody) / sizeof(temp.melody[0]) / 2;
+    int notes = temp.size / sizeof(temp.melody[0]) / 2;
 
     // this calculates the duration of a whole note in ms
     int wholenote = (60000 * 4) / temp.tempo;
