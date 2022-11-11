@@ -99,4 +99,6 @@ typedef struct Song {
 
 Song nokia();
 
+Song got();
+
 #endif

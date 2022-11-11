@@ -90,10 +90,12 @@ void buttonFxn(PIN_Handle handle, PIN_Id pinId) {
 
 /* Task Functions */
 Void uartTaskFxn(UArg arg0, UArg arg1) {
+    return;
     // JTKJ: Teht‰v‰ 4. Lis‰‰ UARTin alustus: 9600,8n1
     // JTKJ: Exercise 4. Setup here UART connection as 9600,8n1
     // UART-kirjaston asetukset
 
+    char input;
     char echo_msg[30];
     UART_Handle uart;
     UART_Params uartParams;
@@ -227,7 +229,7 @@ Void movementTaskFxn(UArg arg0, UArg arg1) {
 
     char msg[60];
 
-    Song song = nokia();
+    Song song = got();
     playSong(&song, hBuzzer);
 
     // Loop forever
@@ -305,6 +307,7 @@ Int main(void) {
      }
      */
 
+    /*
     Task_Params_init(&uartTaskParams);
     uartTaskParams.stackSize = STACKSIZE;
     uartTaskParams.stack = &uartTaskStack;
@@ -313,6 +316,7 @@ Int main(void) {
     if (uartTaskHandle == NULL) {
         System_abort("Task create failed!");
     }
+    */
 
     hMpuPin = PIN_open(&MpuPinState, MpuPinConfig);
     if (hMpuPin == NULL) {
