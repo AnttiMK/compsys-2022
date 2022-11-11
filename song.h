@@ -10,5 +10,7 @@ typedef struct Song {
     int size;
 } Song;
 
+Song nokia();
+
 
 #endif

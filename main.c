@@ -1,4 +1,5 @@
 /* C Standard library */
+#include <stdio.h>
 
 /* XDCtools files */
 #include <xdc/std.h>
@@ -227,11 +228,6 @@ Void movementTaskFxn(UArg arg0, UArg arg1) {
         System_flush();
 
         char msg[60];
-
-        buzzerOpen(hBuzzer);
-        buzzerSetFrequency(500);
-        Task_sleep(10 * 100000 / Clock_tickPeriod);
-        buzzerClose();
 
         Song song = nokia();
         playSong(&song, hBuzzer);

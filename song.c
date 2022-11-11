@@ -95,9 +95,6 @@
 #define NOTE_DS8 4978
 #define REST      0
 
-
-Song nokia();
-
 Song nokia() {
 
     Song nokia;
