@@ -1,27 +1,19 @@
 #include "songs.h"
 
-Song nokia() {
-    Song nokia;
-    nokia.tempo = 180;
-
-    int melody[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4,
+static Song nokia_song;
+static int nokia_melody[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4,
     NOTE_CS5, 8, NOTE_B4, 8, NOTE_D4, 4, NOTE_E4, 4,
     NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4,
     NOTE_A4, 2, 0};
 
-    int i;
-    for(i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
-        nokia.melody[i] = melody[i];
-    };
+Song *nokia() {
+    nokia_song.tempo = 180;
+    nokia_song.melody = &nokia_melody;
+    return &nokia_song;
+}
 
-    return nokia;
-};
-
-Song got() {
-    Song got;
-    got.tempo = 85;
-
-    int melody[] = {NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, //1
+static Song got_song;
+static int got_melody[] = {NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, //1
                     NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16,
                     NOTE_G4,8, NOTE_C4,8, NOTE_E4,16, NOTE_F4,16, NOTE_G4,8, NOTE_C4,8, NOTE_E4,16, NOTE_F4,16,
                     NOTE_G4,8, NOTE_C4,8, NOTE_E4,16, NOTE_F4,16, NOTE_G4,8, NOTE_C4,8, NOTE_E4,16, NOTE_F4,16,
@@ -66,12 +58,10 @@ Song got() {
                     NOTE_C5,8, NOTE_G4,8, NOTE_GS4,16, NOTE_AS4,16, NOTE_C5,8, NOTE_G4,8, NOTE_GS4,16, NOTE_AS4,16,
 
                     REST,4, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16,
-                    NOTE_C6,8, NOTE_G5,16, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16};
+                    NOTE_C6,8, NOTE_G5,16, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16, 0};
 
-    int i;
-    for(i = 0; i < sizeof(melody) / sizeof(melody[0]); i++) {
-        got.melody[i] = melody[i];
-    };
-
-    return got;
+Song *got() {
+    got_song.tempo = 85;
+    got_song.melody = &got_melody;
+    return &got_song;
 }

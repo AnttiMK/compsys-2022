@@ -37,12 +37,21 @@
  *
  *  ============================================================================
  */
-#ifndef _BUZZER_H_
-#define _BUZZER_H_
+#ifndef BUZZER_BUZZER_H_
+#define BUZZER_BUZZER_H_
 /* -----------------------------------------------------------------------------
 *                                          Includes
 * ------------------------------------------------------------------------------
 */
+#include <xdc/std.h>
+#include <xdc/runtime/System.h>
+
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Task.h>
+#include <ti/drivers/PIN.h>
+#include <ti/drivers/pin/PINCC26XX.h>
+
 #include "songs.h"
 
 /* -----------------------------------------------------------------------------
@@ -56,9 +65,13 @@
 *                                          Functions
 * ------------------------------------------------------------------------------
 */
-void buzzerOpen(PIN_Handle hPinGpio);
+void buzzerOpen();
 bool buzzerSetFrequency(uint16_t frequency);
 void buzzerClose(void);
-void playSong(Song *song, PIN_Handle buzzer);
+
+
+void playSong(Song *song);
+
+void Buzzer_register();
 
 #endif

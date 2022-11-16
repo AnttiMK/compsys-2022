@@ -63,7 +63,12 @@
 *  Local variables
 * ------------------------------------------------------------------------------
 */
-static PIN_Handle hPin = NULL;
+static PIN_Handle buzzerHandle;
+static PIN_State buzzerState;
+static PIN_Config buzzerConfig[] = {
+        Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL
+                | PIN_DRVSTR_MAX,
+        PIN_TERMINATE };
 
 /* -----------------------------------------------------------------------------
 *  Public Functions
@@ -79,10 +84,8 @@ static PIN_Handle hPin = NULL;
  *
  * @return      -
  */
-void buzzerOpen(PIN_Handle hGpioPin)
+void buzzerOpen()
 {
-    hPin = hGpioPin;
-
     // Turn on PERIPH power domain and clock for GPT0 and GPIO
     Power_setDependency(PowerCC26XX_PERIPH_GPT0);
     Power_setConstraint(PowerCC26XX_SB_DISALLOW);
@@ -91,7 +94,7 @@ void buzzerOpen(PIN_Handle hGpioPin)
     TimerConfigure(GPT0_BASE, TIMER_CFG_SPLIT_PAIR | TIMER_CFG_A_PWM);
 
     // Configure pin for PWM output
-    PINCC26XX_setMux(hPin, Board_BUZZER, IOC_PORT_MCU_PORT_EVENT0);
+    PINCC26XX_setMux(buzzerHandle, Board_BUZZER, IOC_PORT_MCU_PORT_EVENT0);
 }
 
 
@@ -149,28 +152,29 @@ bool buzzerSetFrequency(uint16_t freq)
 void buzzerClose(void)
 {
     // Configure pin as GPIO
-    PINCC26XX_setMux(hPin, Board_BUZZER, IOC_PORT_GPIO);
+    PINCC26XX_setMux(buzzerHandle, Board_BUZZER, IOC_PORT_GPIO);
 
     // Turn off PERIPH power domain and clock for GPT0
     Power_releaseDependency(PowerCC26XX_PERIPH_GPT0);
     Power_releaseConstraint(PowerCC26XX_SB_DISALLOW);
 }
 
+static void buzzerTask(UArg arg0, UArg arg1) {
+    while (1) {
+        Task_sleep(100000 / Clock_tickPeriod);
+    };
+}
+
 /*
  * Gracefully ripped from https://github.com/robsoncouto/arduino-songs/
  * and adapted to SensorTag
  */
-void playSong(Song *song, PIN_Handle buzzer) {
-    System_printf("playing song");
-    System_printf("size: %d\n", sizeof(song->melody));
-    int notes = sizeof(song->melody) / sizeof(song->melody[0]) / 2;
+void playSong(Song *song) {
     int wholenote = (60000 * 4) / song->tempo;
     int divider = 0, noteDuration = 0;
 
     int thisNote = 0;
-    for (thisNote = 0; thisNote < notes; ++thisNote) {
-        System_printf("Playing note %d\n", thisNote);
-
+    do {
       // calculates the duration of each note
       divider = song->melody[thisNote + 1];
       if (divider > 0) {
@@ -182,9 +186,36 @@ void playSong(Song *song, PIN_Handle buzzer) {
         noteDuration *= 1.5; // increases the duration in half for dotted notes
       }
 
-      buzzerOpen(buzzer);
+      buzzerOpen();
       buzzerSetFrequency(song->melody[thisNote]);
       Task_sleep(noteDuration * 1000 / Clock_tickPeriod);
       buzzerClose();
+      thisNote += 2;
+    } while (song->melody[thisNote] != 0);
+}
+
+static void registerTask() {
+    Task_Params buzzerTaskParams;
+    Char stack[1024];
+
+    Task_Params_init(&buzzerTaskParams);
+    buzzerTaskParams.stackSize = 1024;
+    buzzerTaskParams.stack = &stack;
+    buzzerTaskParams.priority = 2;
+
+    Task_Handle buzzerTaskHandle = Task_create(buzzerTask, &buzzerTaskParams, NULL);
+    if (buzzerTaskHandle == NULL) {
+        System_abort("Buzzer task create failed!");
     }
 }
+
+void Buzzer_register() {
+    buzzerHandle = PIN_open(&buzzerState, buzzerConfig);
+    if (buzzerHandle == NULL) {
+      System_abort("Pin open failed!");
+    }
+
+    registerTask();
+}
+
+

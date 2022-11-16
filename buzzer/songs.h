@@ -1,11 +1,10 @@
 #ifndef _SONGS_H_
 #define _SONGS_H_
 
-typedef struct Song {
-    int tempo;
-    int melody[100];
-} Song;
-
+/* -----------------------------------------------------------------------------
+*                                          Constants
+* ------------------------------------------------------------------------------
+*/
 #define NOTE_B0  31
 #define NOTE_C1  33
 #define NOTE_CS1 35
@@ -97,8 +96,13 @@ typedef struct Song {
 #define NOTE_DS8 4978
 #define REST      0
 
-Song nokia();
+typedef struct Song {
+    int tempo;
+    int *melody;
+} Song;
 
-Song got();
+Song *nokia();
+
+Song *got();
 
 #endif

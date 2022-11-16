@@ -22,8 +22,10 @@
 #include "wireless/comm_lib.h"
 #include "sensors/opt3001.h"
 #include "sensors/mpu9250.h"
+
+
 #include "buzzer/buzzer.h"
-#include "buzzer/songs.h"
+#include "buttons/buttons.h"
 
 /* Task */
 #define STACKSIZE 2048
@@ -42,21 +44,6 @@ enum state programState = WAITING;
 // JTKJ: Exercise 3. Global variable for ambient light
 double ambientLight = -1000.0;
 
-// JTKJ: Tehtävä 1. Lisää painonappien RTOS-muuttujat ja alustus
-// JTKJ: Exercise 1. Add pins RTOS-variables and configuration here
-static PIN_Handle buttonHandle;
-static PIN_State buttonState;
-static PIN_Handle ledHandle;
-static PIN_State ledState;
-
-PIN_Config buttonConfig[] = {
-Board_BUTTON0 | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_NEGEDGE,
-                              PIN_TERMINATE };
-
-PIN_Config ledConfig[] = {
-Board_LED1 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
-                           PIN_TERMINATE };
-
 // MPU power pin global variables
 static PIN_Handle hMpuPin;
 static PIN_State MpuPinState;
@@ -71,22 +58,7 @@ Board_MPU_POWER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_HIGH | PIN_PUSHPULL
 static const I2CCC26XX_I2CPinCfg i2cMPUCfg = { .pinSDA = Board_I2C0_SDA1,
                                                .pinSCL = Board_I2C0_SCL1 };
 
-static PIN_Handle hBuzzer;
-static PIN_State sBuzzer;
-static PIN_Config cBuzzer[] = {
-        Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL
-                | PIN_DRVSTR_MAX,
-        PIN_TERMINATE };
 
-void buttonFxn(PIN_Handle handle, PIN_Id pinId) {
-
-    // JTKJ: Tehtävä 1. Vilkuta jompaa kumpaa lediä
-    // JTKJ: Exercise 1. Blink either led of the device
-    // Vaihdetaan led-pinnin tilaa negaatiolla
-    uint_t pinValue = PIN_getOutputValue( Board_LED1);
-    pinValue = !pinValue;
-    PIN_setOutputValue(ledHandle, Board_LED1, pinValue);
-}
 
 /* Task Functions */
 Void uartTaskFxn(UArg arg0, UArg arg1) {
@@ -130,7 +102,6 @@ Void uartTaskFxn(UArg arg0, UArg arg1) {
 
         if (programState == DATA_READY) {
             sprintf(echo_msg, "%f\n", ambientLight);
-            System_printf(echo_msg);
             programState = WAITING;
         }
 
@@ -229,22 +200,15 @@ Void movementTaskFxn(UArg arg0, UArg arg1) {
 
     char msg[60];
 
-    Song song = got();
-    playSong(&song, hBuzzer);
+    // playSong(got(), hBuzzer);
 
     // Loop forever
     while (1) {
-        System_printf("ticks before: %d\n", Clock_getTicks());
-
         // MPU ask data
         mpu9250_get_data(&i2cMPU, &ax, &ay, &az, &gx, &gy, &gz);
-        sprintf(msg, "ax: %f, ay: %f, az:%f, gx: %f, gy: %f, gz:%f,\n", ax, ay,
-                az, gx, gy, gz);
-        System_printf(msg);
-        System_printf("ticks before: %d\n", Clock_getTicks());
 
         // Sleep 100ms
-        // Task_sleep(100000 / Clock_tickPeriod);
+        Task_sleep(100000 / Clock_tickPeriod);
     }
 
     // Program never gets here..
@@ -279,21 +243,12 @@ Int main(void) {
     // JTKJ: Exercise 1. Open the button and led pins
     //       Remember to register the above interrupt handler for button
     // Ledi käyttöön ohjelmassa
-    ledHandle = PIN_open(&ledState, ledConfig);
-    if (!ledHandle) {
-        System_abort("Error initializing LED pin\n");
-    }
 
-    // Painonappi käyttöön ohjelmassa
-    buttonHandle = PIN_open(&buttonState, buttonConfig);
-    if (!buttonHandle) {
-        System_abort("Error initializing button pin\n");
-    }
+    // Rekisteröidään painonapit ja niiden taskit
+    Buttons_registerAll();
 
-    // Painonapille keskeytyksen käsittellijä
-    if (PIN_registerIntCb(buttonHandle, &buttonFxn) != 0) {
-        System_abort("Error registering button callback function");
-    }
+    // Rekisteröidään summeri
+    //Buzzer_register();
 
     /* Task */
     /*
@@ -307,7 +262,6 @@ Int main(void) {
      }
      */
 
-    /*
     Task_Params_init(&uartTaskParams);
     uartTaskParams.stackSize = STACKSIZE;
     uartTaskParams.stack = &uartTaskStack;
@@ -316,7 +270,6 @@ Int main(void) {
     if (uartTaskHandle == NULL) {
         System_abort("Task create failed!");
     }
-    */
 
     hMpuPin = PIN_open(&MpuPinState, MpuPinConfig);
     if (hMpuPin == NULL) {
