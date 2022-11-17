@@ -7,6 +7,7 @@
 
 #include "buttons.h"
 #include "buzzer/buzzer.h"
+#include <stdbool.h>
 
 #define STACKSIZE 1024
 Char auxBtnTaskStack[STACKSIZE];
@@ -36,6 +37,7 @@ enum state pwrButtonState = OPEN;
 
 static PIN_Handle ledHandle;
 static PIN_State ledState;
+static int menuState = 0;
 
 PIN_Config ledConfig[] = {
 Board_LED1 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
@@ -76,6 +78,77 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
         }
         Task_sleep(100000 / Clock_tickPeriod);
     }
+}
+
+/*
+
+auxButtonTask2 ja pwrButtonTask2 menu rakenne testausta varten. Esimerkiksi käynnistyessä 
+power ja aux nappi, lyhyt painallus aux nappia = esim syönti funktio. Pitkä painallus aux nappia = 
+menu value = 1, jolloin lyhyt painallus power nappia = soittaa tkn, 
+lyhyt painallus aux nappia = soittaa mario, pitkä painallus aux nappia = menee pois menu tilasta
+
+*/
+
+static void auxButtonTask2(UArg arg0, UArg arg1){
+    int increment = 0;
+    while (1) {
+        
+        if(menuState == 1){
+            if (auxButtonState == PRESSED) {
+                increment++;
+            } else {
+                if (increment > 10) {
+                    menuState = 0;
+                } else {
+                    playSong(mario());
+                }
+            }
+            increment = 0;
+
+        } else {
+            if (auxButtonState == PRESSED) {
+                increment++;
+
+            } else {
+                if (increment > 10) {
+                    menuState = 1
+                } else {
+                    /*
+                    Esimerkiksi: syönti funktio
+                    */
+                }
+            }
+            increment = 0;
+        }
+
+        Task_sleep(100000 / Clock_tickPeriod);
+    }
+}
+
+static void pwrButtonTask2(UArg arg0, UArg arg1){
+    int increment = 0;
+    while (1) {
+        if (pwrButtonState == PRESSED) {
+            increment++;
+
+        } else {
+
+            if (increment > 30) {
+                playSong(nokia());
+                PIN_close(pwrBtnHandle);
+                PINCC26XX_setWakeup(pwrBtnWakeupConfig);
+                Power_shutdown(NULL,0);
+            }
+
+            if (menuState == 1 && increment < 30){
+                playSong(tkn())
+            }
+        }
+        increment = 0;
+
+        Task_sleep(100000 / Clock_tickPeriod);
+    }
+
 }
 
 static void pwrButtonTask(UArg arg0, UArg arg1) {

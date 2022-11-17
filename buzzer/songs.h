@@ -105,4 +105,8 @@ Song *nokia();
 
 Song *got();
 
+Song *tkn();
+
+Song *mario();
+
 #endif
