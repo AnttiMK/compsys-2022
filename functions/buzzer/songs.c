@@ -1,10 +1,10 @@
-#include "songs.h"
+#include <functions/buzzer/songs.h>
 
 static Song nokia_song;
 static int nokia_melody[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4,
     NOTE_CS5, 8, NOTE_B4, 8, NOTE_D4, 4, NOTE_E4, 4,
     NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4,
-    NOTE_A4, 2, 0};
+    NOTE_A4, 2, -1};
 
 Song *nokia() {
     nokia_song.tempo = 180;
@@ -14,10 +14,10 @@ Song *nokia() {
 
 static Song mario_song;
 static int mario_melody[] = {
-    NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, //1
-  NOTE_G5,4, REST,4, NOTE_G4,8, REST,4, 
-  NOTE_C5,-4, NOTE_G4,8, REST,4, NOTE_E4,-4, // 3
-  NOTE_A4,4, NOTE_B4,4, NOTE_AS4,8, NOTE_A4,4,
+    NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, REST,8, //1
+  NOTE_G5,8, REST,-4, NOTE_G4,8, REST,-4,
+  NOTE_C5,8, REST,4, NOTE_G4,8, REST,4, NOTE_E4, 8, REST,4, // 3
+  NOTE_A4,8, REST, 8, NOTE_B4,8, REST,8, NOTE_AS4,8, NOTE_A4,8, REST,8,
   NOTE_G4,-8, NOTE_E5,-8, NOTE_G5,-8, NOTE_A5,4, NOTE_F5,8, NOTE_G5,8,
   REST,8, NOTE_E5,4,NOTE_C5,8, NOTE_D5,8, NOTE_B4,-4,
   NOTE_C5,-4, NOTE_G4,8, REST,4, NOTE_E4,-4, // repeats from 3
@@ -95,7 +95,7 @@ static int mario_melody[] = {
   //game over sound
   NOTE_C5,-4, NOTE_G4,-4, NOTE_E4,4, //45
   NOTE_A4,-8, NOTE_B4,-8, NOTE_A4,-8, NOTE_GS4,-8, NOTE_AS4,-8, NOTE_GS4,-8,
-  NOTE_G4,8, NOTE_D4,8, NOTE_E4,-2, 0
+  NOTE_G4,8, NOTE_D4,8, NOTE_E4,-2, -1
 
 };
 
@@ -122,7 +122,7 @@ static int tkn_melody[] = {
   REST,8, NOTE_E5,8, REST,8, NOTE_E5,8, NOTE_GS5,8, NOTE_GS5,8, NOTE_A5,8, NOTE_B5,8,
   
   NOTE_A5,8, NOTE_A5,8, NOTE_A5,8, NOTE_E5,8, REST,8, NOTE_D5,8, REST,8, NOTE_FS5,8, 
-  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8, 0
+  REST,8, NOTE_FS5,8, REST,8, NOTE_FS5,8, NOTE_E5,8, NOTE_E5,8, NOTE_FS5,8, NOTE_E5,8, -1
 };
 
 Song *tkn() {
@@ -179,7 +179,7 @@ static int got_melody[] = {NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, NOTE_G
                     NOTE_C5,8, NOTE_G4,8, NOTE_GS4,16, NOTE_AS4,16, NOTE_C5,8, NOTE_G4,8, NOTE_GS4,16, NOTE_AS4,16,
 
                     REST,4, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16,
-                    NOTE_C6,8, NOTE_G5,16, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16, 0};
+                    NOTE_C6,8, NOTE_G5,16, NOTE_GS5,16, NOTE_AS5,16, NOTE_C6,8, NOTE_G5,8, NOTE_GS5,16, NOTE_AS5,16, -1};
 
 Song *got() {
     got_song.tempo = 85;

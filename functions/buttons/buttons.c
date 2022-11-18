@@ -5,8 +5,8 @@
  *      Author: Antti
  */
 
-#include "buttons.h"
-#include "buzzer/buzzer.h"
+#include <functions/buttons/buttons.h>
+#include <functions/buzzer/buzzer.h>
 #include <stdbool.h>
 
 #define STACKSIZE 1024
@@ -64,7 +64,7 @@ static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     }
 }
 
-static void auxButtonTask(UArg arg0, UArg arg1) {
+static void auxButtonTask0(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
         if (auxButtonState == PRESSED) {
@@ -89,7 +89,7 @@ lyhyt painallus aux nappia = soittaa mario, pitkä painallus aux nappia = menee 
 
 */
 
-static void auxButtonTask2(UArg arg0, UArg arg1){
+static void auxButtonTask(UArg arg0, UArg arg1){
     int increment = 0;
     while (1) {
         
@@ -99,33 +99,32 @@ static void auxButtonTask2(UArg arg0, UArg arg1){
             } else {
                 if (increment > 10) {
                     menuState = 0;
-                } else {
+                } else if (increment > 0) {
                     playSong(mario());
                 }
+                increment = 0;
             }
-            increment = 0;
-
         } else {
             if (auxButtonState == PRESSED) {
                 increment++;
 
             } else {
                 if (increment > 10) {
-                    menuState = 1
+                    menuState = 1;
                 } else {
                     /*
                     Esimerkiksi: syönti funktio
                     */
                 }
+                increment = 0;
             }
-            increment = 0;
         }
 
         Task_sleep(100000 / Clock_tickPeriod);
     }
 }
 
-static void pwrButtonTask2(UArg arg0, UArg arg1){
+static void pwrButtonTask(UArg arg0, UArg arg1){
     int increment = 0;
     while (1) {
         if (pwrButtonState == PRESSED) {
@@ -140,8 +139,8 @@ static void pwrButtonTask2(UArg arg0, UArg arg1){
                 Power_shutdown(NULL,0);
             }
 
-            if (menuState == 1 && increment < 30){
-                playSong(tkn())
+            if (menuState == 1 && increment > 0 && increment < 30){
+                playSong(tkn());
             }
         }
         increment = 0;
@@ -151,7 +150,7 @@ static void pwrButtonTask2(UArg arg0, UArg arg1){
 
 }
 
-static void pwrButtonTask(UArg arg0, UArg arg1) {
+static void pwrButtonTask0(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
         if (pwrButtonState == PRESSED) {
@@ -195,7 +194,7 @@ static void registerTasks() {
     }
 }
 
-void Buttons_registerAll() {
+void Buttons_registerTasks() {
     auxBtnHandle = PIN_open(&auxBtnState, auxBtnConfig);
     if (!auxBtnHandle) {
         System_abort("Error initializing auxiliary button pin\n");

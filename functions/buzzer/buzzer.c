@@ -51,12 +51,12 @@
 // (until a Timer RTOS driver is in place)
 #include <ti/drivers/pin/PINCC26XX.h>
 #include <driverlib/timer.h>
+#include <functions/buzzer/buzzer.h>
 
 #include <xdc/std.h>
 #include <xdc/runtime/System.h>
 
 #include "Board.h"
-#include "buzzer.h"
 
 
 /* -----------------------------------------------------------------------------
@@ -166,7 +166,7 @@ static void buzzerTask(UArg arg0, UArg arg1) {
 }
 
 /*
- * Gracefully ripped from https://github.com/robsoncouto/arduino-songs/
+ * Gracefully borrowed from https://github.com/robsoncouto/arduino-songs/
  * and adapted to SensorTag
  */
 void playSong(Song *song) {
@@ -190,8 +190,9 @@ void playSong(Song *song) {
       buzzerSetFrequency(song->melody[thisNote]);
       Task_sleep(noteDuration * 1000 / Clock_tickPeriod);
       buzzerClose();
+
       thisNote += 2;
-    } while (song->melody[thisNote] != 0);
+    } while (song->melody[thisNote] != -1);
 }
 
 static void registerTask() {

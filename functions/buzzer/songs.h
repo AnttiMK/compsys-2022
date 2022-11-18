@@ -95,6 +95,7 @@
 #define NOTE_D8  4699
 #define NOTE_DS8 4978
 #define REST      0
+#define STOP      -1
 
 typedef struct Song {
     int tempo;

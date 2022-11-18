@@ -37,12 +37,13 @@
  *
  *  ============================================================================
  */
-#ifndef BUZZER_BUZZER_H_
-#define BUZZER_BUZZER_H_
+#ifndef FUNCTIONS_BUZZER_BUZZER_H_
+#define FUNCTIONS_BUZZER_BUZZER_H_
 /* -----------------------------------------------------------------------------
 *                                          Includes
 * ------------------------------------------------------------------------------
 */
+#include <functions/buzzer/songs.h>
 #include <xdc/std.h>
 #include <xdc/runtime/System.h>
 
@@ -52,7 +53,6 @@
 #include <ti/drivers/PIN.h>
 #include <ti/drivers/pin/PINCC26XX.h>
 
-#include "songs.h"
 
 /* -----------------------------------------------------------------------------
 *                                          Constants

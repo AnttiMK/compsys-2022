@@ -5,8 +5,8 @@
  *      Author: Antti
  */
 
-#ifndef BUTTONS_BUTTONS_H_
-#define BUTTONS_BUTTONS_H_
+#ifndef FUNCTIONS_BUTTONS_BUTTONS_H_
+#define FUNCTIONS_BUTTONS_BUTTONS_H_
 
 #include <xdc/std.h>
 #include <xdc/runtime/System.h>
@@ -19,7 +19,7 @@
 
 #include "Board.h"
 
-void Buttons_registerAll();
+void Buttons_registerTasks();
 
 
-#endif /* BUTTONS_BUTTONS_H_ */
+#endif /* FUNCTIONS_BUTTONS_BUTTONS_H_ */
