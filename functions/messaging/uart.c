@@ -52,6 +52,7 @@ static void uartTask(UArg arg0, UArg arg1) {
 
     UART_read(uart, uartBuffer, 1);
     return;
+
     while (1) {
 
         Task_sleep(10000 / Clock_tickPeriod);
