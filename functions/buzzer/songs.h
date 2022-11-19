@@ -110,4 +110,8 @@ Song *tkn();
 
 Song *mario();
 
+Song *sleep();
+
+Song *wakeup();
+
 #endif

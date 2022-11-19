@@ -12,9 +12,35 @@ Song *nokia() {
     return &nokia_song;
 }
 
+static Song sleep_song;
+static int sleep_melody[] = {
+    NOTE_C5,-4, NOTE_G4,-4, NOTE_E4,4, //45
+    NOTE_A4,-8, NOTE_B4,-8, NOTE_A4,-8, NOTE_GS4,-8, NOTE_AS4,-8, NOTE_GS4,-8,
+    NOTE_G4,8, NOTE_D4,8, NOTE_E4,-2, -1
+};
+
+Song *sleep() {
+    sleep_song.tempo = 200;
+    sleep_song.melody = &sleep_melody;
+    return &sleep_song;
+}
+
+static Song wakeup_song;
+static int wakeup_melody[] = {
+    NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, REST,8, //1
+    NOTE_G5,8, REST,-4, NOTE_G4,8, REST,-4, -1
+};
+
+Song *wakeup() {
+    wakeup_song.tempo = 200;
+    wakeup_song.melody = &wakeup_melody;
+    return &wakeup_song;
+}
+
+
 static Song mario_song;
 static int mario_melody[] = {
-    NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, REST,8, //1
+  NOTE_E5,8, NOTE_E5,8, REST,8, NOTE_E5,8, REST,8, NOTE_C5,8, NOTE_E5,8, REST,8, //1
   NOTE_G5,8, REST,-4, NOTE_G4,8, REST,-4,
   NOTE_C5,8, REST,4, NOTE_G4,8, REST,4, NOTE_E4, 8, REST,4, // 3
   NOTE_A4,8, REST, 8, NOTE_B4,8, REST,8, NOTE_AS4,8, NOTE_A4,8, REST,8,
@@ -104,7 +130,6 @@ Song *mario() {
     mario_song.melody = &mario_melody;
     return &mario_song;
 }
-
 
 
 static Song tkn_song;
