@@ -24,7 +24,7 @@ static const I2CCC26XX_I2CPinCfg i2cMPUCfg = { .pinSDA = Board_I2C0_SDA1,
                                                .pinSCL = Board_I2C0_SCL1 };
 
 Void movementTask(UArg arg0, UArg arg1) {
-
+    return;
     float ax, ay, az, gx, gy, gz;
 
     I2C_Handle i2cMPU; // Own i2c-interface for MPU9250 sensor

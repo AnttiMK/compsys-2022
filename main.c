@@ -1,4 +1,5 @@
 /* C Standard library */
+#include <functions/ambientLightSensor/ambientLight.h>
 #include <stdio.h>
 
 /* XDCtools files */
@@ -26,20 +27,6 @@
 #include <functions/buzzer/buzzer.h>
 #include <functions/movementSensor/movementSensor.h>
 #include <functions/messaging/uart.h>
-#include <functions/night/night.h>
-
-/* Task */
-#define STACKSIZE 2048
-Char sensorTaskStack[STACKSIZE];
-Char uartTaskStack[STACKSIZE];
-
-// JTKJ: Tehtävä 3. Tilakoneen esittely
-// JTKJ: Exercise 3. Definition of the state machine
-enum state { WAITING = 1, DATA_READY };
-enum state programState = WAITING;
-
-// JTKJ: Tehtävä 3. Valoisuuden globaali muuttuja
-// JTKJ: Exercise 3. Global variable for ambient light
 
 Int main(void) {
     // Task variables
@@ -59,7 +46,7 @@ Int main(void) {
 
     //Yö-taskin rekistöröinti
 
-    night_registerTask();
+    AmbientLight_registerTask();
 
     // Rekisteröidään painonapit ja niiden taskit
     Buttons_registerTasks();

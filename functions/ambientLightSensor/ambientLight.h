@@ -5,8 +5,8 @@
  *      Author: Matias
  */
 
-#ifndef FUNCTIONS_NIGHT_NIGHT_H_
-#define FUNCTIONS_NIGHT_NIGHT_H_
+#ifndef FUNCTIONS_AMBIENTLIGHTSENSOR_AMBIENTLIGHT_H_
+#define FUNCTIONS_AMBIENTLIGHTSENSOR_AMBIENTLIGHT_H_
 
 #include <ti/sysbios/knl/Task.h>
 #include "sensors/opt3001.h"
@@ -16,6 +16,6 @@
 
 Void nightTask(UArg arg0, UArg arg1);
 
-Void night_registerTask();
+Void AmbientLight_registerTask();
 
-#endif /* FUNCTIONS_NIGHT_NIGHT_H_ */
+#endif /* FUNCTIONS_AMBIENTLIGHTSENSOR_AMBIENTLIGHT_H_ */

@@ -5,7 +5,7 @@
  *      Author: Matias
  */
 
-#include <functions/night/night.h>
+#include <functions/ambientLightSensor/ambientLight.h>
 #include <functions/buzzer/buzzer.h>
 
 #define STACKSIZE 1024
@@ -31,35 +31,35 @@ Void nightTask(UArg arg0, UArg arg1) {
         System_abort("Error Initializing I2C\n");
     }
 
-
     //otetaan opt3001 käyttöön
 
-    Task_sleep(1000);
+    Task_sleep(100000 / Clock_tickPeriod);
     opt3001_setup(&i2c);
+    Task_sleep(100000 / Clock_tickPeriod);
 
     while (1) {
-
+        //i2c = I2C_open(Board_I2C_TMP, &i2cParams);
         double light = opt3001_get_data(&i2c);
 
-        if (light < 200) {
+        if (light >= 0 && light < 200) {
             timeState = NIGHT;
         }
 
         if (timeState == NIGHT) {
             //nukkuu ehkä 5 sekuntia ehkä tm
             playSong(sleep());
-            Task_sleep(50000);
+            Task_sleep(5000000 / Clock_tickPeriod);
             playSong(wakeup());
             timeState = DAY;
-            I2C_close(Board_I2C_TMP);
         }
 
+        //I2C_close(Board_I2C_TMP);
         // Once per second, you can modify this
         Task_sleep(1000000 / Clock_tickPeriod);
     }
 }
 
-void night_registerTask() {
+void AmbientLight_registerTask() {
     Task_Handle nightTaskHandle;
     Task_Params nightTaskParams;
 
