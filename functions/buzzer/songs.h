@@ -114,4 +114,6 @@ Song *sleep();
 
 Song *wakeup();
 
+Song *beep1();
+
 #endif

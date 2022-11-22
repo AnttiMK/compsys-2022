@@ -211,3 +211,14 @@ Song *got() {
     got_song.melody = got_melody;
     return &got_song;
 }
+
+static Song beep1_beep;
+static int beep1_melody[] = {
+    NOTE_C5,8, REST,8, NOTE_C5,8, -1 //45
+};
+
+Song *beep1() {
+    beep1_beep.tempo = 300;
+    beep1_beep.melody = beep1_melody;
+    return &beep1_beep;
+}

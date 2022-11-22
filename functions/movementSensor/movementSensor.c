@@ -19,6 +19,7 @@
 
 #include "Board.h"
 #include "sensors/mpu9250.h"
+#include <functions/buzzer/buzzer.h>
 
 #define STACKSIZE 4096
 static Char movementTaskStack[STACKSIZE];
@@ -93,6 +94,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             while (!tryLockI2C()) {
                 Task_sleep(100000 / Clock_tickPeriod);
             }
+            playSong(beep1());
             int i;
             for (i = 0; i < 100; ++i) {
                 mpu9250_get_data(&i2cMPU, &ax, &ay, &az, &gx, &gy, &gz);
@@ -107,6 +109,7 @@ static void movementTask(UArg arg0, UArg arg1) {
                 /* Sleep 100ms */
                 Task_sleep(50000 / Clock_tickPeriod);
             }
+            playSong(beep1());
 
             I2C_close(i2cMPU);
             collectionState = STANDBY;
