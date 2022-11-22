@@ -11,8 +11,8 @@
 #include <math.h>
 #include <stdio.h>
 
-float calculateSD(float *data[7][100]) 
-float calculateVariance(float *data[7][100])
+float calculateSD(float *data[7][100]); 
+float calculateVariance(float *data[7][100]);
 
 
 #endif

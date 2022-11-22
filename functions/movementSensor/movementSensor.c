@@ -18,6 +18,7 @@
 #include <ti/drivers/i2c/I2CCC26XX.h>
 
 #include <functions/movmentSensor/dataParser.h>
+#include <functions/movmentSensor/movmentTask.h>
 
 #include "Board.h"
 #include "sensors/mpu9250.h"
@@ -131,6 +132,8 @@ static void movementTask(UArg arg0, UArg arg1) {
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
+
+            recognizeMove(float x1, float y1, float z1);
             
             float x2,y2,z2,xg2,yg2,zg2 = calculateVariance(&sensorData);
 

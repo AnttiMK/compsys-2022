@@ -13,9 +13,11 @@
 // CREDITS: https://www.programiz.com/c-programming/examples/standard-deviation
 
 float calculateSD(float *data[7][100]);
+
 float calculateVariance(float *data[7][100]);
 
 float calculateSD(float *data[7][100]) {
+
     float sumX = 0.0, meanX, SDX = 0.0;
     float sumY = 0.0, meanY, SDY = 0.0;
     float sumZ = 0.0, meanZ, SDZ = 0.0;
@@ -25,6 +27,7 @@ float calculateSD(float *data[7][100]) {
 
     int i;
     for (i = 0; i < 100; ++i) {
+
         sumX += *data[1][i];
         sumY += *data[2][i];
         sumZ += *data[3][i];
@@ -38,7 +41,9 @@ float calculateSD(float *data[7][100]) {
     meanXg = sumXg / 100;
     meanYg = sumYg / 100;
     meanZg = sumZg / 100;
+
     for (i = 0; i < 100; ++i) {
+
         SDX += pow(*data[1][i] - meanX, 2);
         SDY += pow(*data[2][i] - meanY, 2);
         SDZ += pow(*data[3][i] - meanZ, 2);
@@ -47,12 +52,13 @@ float calculateSD(float *data[7][100]) {
         SDZg += pow(*data[6][i] - meanZ, 2);
     }
 
-    return sqrt(SDX / 100),sqrt(SDY / 100),sqrt(SDZ / 100),sqrt(SDXg / 100),sqrt(SDYg / 100),sqrt(SDZg / 100);
+    return sqrt(SDX / 100), sqrt(SDY / 100), sqrt(SDZ / 100),sqrt(SDXg / 100), sqrt(SDYg / 100), sqrt(SDZg / 100);
 }
 
 // CREDITS: https://www.sanfoundry.com/c-program-mean-variance-standard-deviation/
 
 float calculateVariance(float *data[7][100]) {
+
     float averageX, std_deviationX, sumX = 0, sum1X = 0;
     float averageY, std_deviationY, sumY = 0, sum1Y = 0;
     float averageZ, std_deviationZ, sumZ = 0, sum1Z = 0;
@@ -69,6 +75,7 @@ float calculateVariance(float *data[7][100]) {
         sumYg += *data[5][i];
         sumZg += *data[6][i];
     }
+
     averageX = sumX / 100;
     averageY = sumY / 100;
     averageZ = sumZ / 100;
@@ -85,6 +92,7 @@ float calculateVariance(float *data[7][100]) {
         sum1Yg = sum1Yg + pow((*data[5][i] - averageYg), 2);
         sum1Zg = sum1Zg + pow((*data[6][i] - averageZg), 2);
     }
+
     std_deviationX = sqrt(sum1X / 100);
     std_deviationY = sqrt(sum1Y / 100);
     std_deviationZ = sqrt(sum1Z / 100);
