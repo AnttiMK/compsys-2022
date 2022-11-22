@@ -17,6 +17,8 @@
 #include <ti/drivers/I2C.h>
 #include <ti/drivers/i2c/I2CCC26XX.h>
 
+#include <functions/movmentSensor/dataParser.h>
+
 #include "Board.h"
 #include "sensors/mpu9250.h"
 #include <functions/buzzer/buzzer.h>
@@ -122,6 +124,22 @@ static void movementTask(UArg arg0, UArg arg1) {
                 System_flush();
                 memset(msg, 0, 60);
             }
+
+            float x1,y1,z1,xg1,yg1,zg1 = calculateSD(&sensorData);
+
+            sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            System_printf(msg);
+            System_flush();
+            memset(msg, 0, 60);
+            
+            float x2,y2,z2,xg2,yg2,zg2 = calculateVariance(&sensorData);
+
+            sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
+            System_printf(msg);
+            System_flush();
+            memset(msg, 0, 60);
+
+
         }
 
         // Sleep 100ms
