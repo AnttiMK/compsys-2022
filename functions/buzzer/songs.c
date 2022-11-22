@@ -8,7 +8,7 @@ static int nokia_melody[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4,
 
 Song *nokia() {
     nokia_song.tempo = 180;
-    nokia_song.melody = &nokia_melody;
+    nokia_song.melody = nokia_melody;
     return &nokia_song;
 }
 
@@ -21,7 +21,7 @@ static int sleep_melody[] = {
 
 Song *sleep() {
     sleep_song.tempo = 200;
-    sleep_song.melody = &sleep_melody;
+    sleep_song.melody = sleep_melody;
     return &sleep_song;
 }
 
@@ -33,7 +33,7 @@ static int wakeup_melody[] = {
 
 Song *wakeup() {
     wakeup_song.tempo = 200;
-    wakeup_song.melody = &wakeup_melody;
+    wakeup_song.melody = wakeup_melody;
     return &wakeup_song;
 }
 
@@ -127,7 +127,7 @@ static int mario_melody[] = {
 
 Song *mario() {
     mario_song.tempo = 200;
-    mario_song.melody = &mario_melody;
+    mario_song.melody = mario_melody;
     return &mario_song;
 }
 
@@ -152,7 +152,7 @@ static int tkn_melody[] = {
 
 Song *tkn() {
     tkn_song.tempo = 140;
-    nokia_song.melody = &tkn_melody;
+    nokia_song.melody = tkn_melody;
     return &tkn_song;
 }
 
@@ -208,6 +208,6 @@ static int got_melody[] = {NOTE_G4,8, NOTE_C4,8, NOTE_DS4,16, NOTE_F4,16, NOTE_G
 
 Song *got() {
     got_song.tempo = 85;
-    got_song.melody = &got_melody;
+    got_song.melody = got_melody;
     return &got_song;
 }

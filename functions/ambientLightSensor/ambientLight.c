@@ -7,17 +7,31 @@
 
 #include <functions/ambientLightSensor/ambientLight.h>
 #include <functions/buzzer/buzzer.h>
+#include "functions/movementSensor/movementSensor.h"
+
+#include <xdc/runtime/System.h>
+#include <ti/drivers/I2C.h>
+#include <ti/drivers/i2c/I2CCC26XX.h>
+#include <ti/sysbios/knl/Task.h>
+#include <ti/sysbios/knl/Clock.h>
+#include "sensors/opt3001.h"
+#include "Board.h"
 
 #define STACKSIZE 1024
 Char nightTaskStack[STACKSIZE];
 
-enum state {NIGHT = 1, DAY};
+enum state {
+    NIGHT = 1, DAY
+};
 
 enum state timeState = DAY;
 
-Void nightTask(UArg arg0, UArg arg1) {
+static void nightTask(UArg arg0, UArg arg1) {
 
-    //koska ei käytetä muita sensoreita voidaan tehdä i2c täällä
+    // Wait for MPU9250 to power up
+    while (MovementSensor_getState() != STANDBY) {
+        Task_sleep(100000 / Clock_tickPeriod);
+    }
 
     I2C_Handle i2c;
     I2C_Params i2cParams;
@@ -38,10 +52,25 @@ Void nightTask(UArg arg0, UArg arg1) {
     Task_sleep(100000 / Clock_tickPeriod);
 
     while (1) {
-        //i2c = I2C_open(Board_I2C_TMP, &i2cParams);
+        while (MovementSensor_getState() == COLLECTING) {
+            if (i2c != NULL) {
+                I2C_close(i2c);
+                i2c = NULL;
+            }
+            Task_sleep(100000 / Clock_tickPeriod);
+        }
+
+        while (i2c == NULL) {
+            i2c = I2C_open(Board_I2C_TMP, &i2cParams);
+
+            if (i2c == NULL) {
+                Task_sleep(100000 / Clock_tickPeriod);
+            }
+        }
+
         double light = opt3001_get_data(&i2c);
 
-        if (light >= 0 && light < 200) {
+        if (light >= 0 && light < 50) {
             timeState = NIGHT;
         }
 
@@ -53,7 +82,6 @@ Void nightTask(UArg arg0, UArg arg1) {
             timeState = DAY;
         }
 
-        //I2C_close(Board_I2C_TMP);
         // Once per second, you can modify this
         Task_sleep(1000000 / Clock_tickPeriod);
     }
@@ -66,6 +94,7 @@ void AmbientLight_registerTask() {
     Task_Params_init(&nightTaskParams);
     nightTaskParams.stackSize = STACKSIZE;
     nightTaskParams.stack = &nightTaskStack;
+    nightTaskParams.priority = 2;
     nightTaskHandle = Task_create(nightTask, &nightTaskParams,
     NULL);
     if (nightTaskHandle == NULL) {

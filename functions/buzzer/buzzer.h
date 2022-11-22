@@ -43,16 +43,9 @@
 *                                          Includes
 * ------------------------------------------------------------------------------
 */
-#include <functions/buzzer/songs.h>
+#include "stdbool.h"
 #include <xdc/std.h>
-#include <xdc/runtime/System.h>
-
-#include <ti/sysbios/BIOS.h>
-#include <ti/sysbios/knl/Clock.h>
-#include <ti/sysbios/knl/Task.h>
-#include <ti/drivers/PIN.h>
-#include <ti/drivers/pin/PINCC26XX.h>
-
+#include <functions/buzzer/songs.h>
 
 /* -----------------------------------------------------------------------------
 *                                          Constants

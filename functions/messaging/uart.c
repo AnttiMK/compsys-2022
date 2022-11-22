@@ -7,16 +7,24 @@
 
 #include "uart.h"
 
+#include <stdio.h>
+#include <string.h>
+#include <xdc/std.h>
+#include <xdc/runtime/System.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Task.h>
+#include <ti/drivers/UART.h>
+#include "Board.h"
+
 #define STACKSIZE 2048
 Char uartTaskStack[STACKSIZE];
 
 uint8_t uartBuffer[80]; // Vastaanottopuskuri
 
 static void uartHandler(UART_Handle handle, void *rxBuf, size_t len) {
-    //char echo_msg[50];
-    //sprintf(echo_msg, "Received: %c\n", rxBuf);
-    //System_printf(rxBuf);
-    //System_flush();
+    System_printf(rxBuf);
+    System_flush();
 
     // K‰sittelij‰n viimeisen‰ asiana siirryt‰‰n odottamaan uutta keskeytyst‰..
     UART_read(handle, rxBuf, 80);
@@ -52,6 +60,9 @@ static void uartTask(UArg arg0, UArg arg1) {
 
     UART_read(uart, uartBuffer, 80);
 
+    sprintf(ping_msg, "id:420,ping");
+    UART_write(uart, ping_msg, strlen(ping_msg) + 1);
+
     while (1) {
         //Task_sleep(10000 / Clock_tickPeriod);
 
@@ -74,8 +85,8 @@ static void uartTask(UArg arg0, UArg arg1) {
 
         // JTKJ: Teht‰v‰ 4. L‰het‰ sama merkkijono UARTilla
         // JTKJ: Exercise 4. Send the same sensor data string with UART
-        sprintf(ping_msg, "id:420,ping");
-        UART_write(uart, ping_msg, strlen(ping_msg) + 1);
+//        sprintf(ping_msg, "id:420,ping");
+//        UART_write(uart, ping_msg, strlen(ping_msg) + 1);
         // Just for sanity check for exercise, you can comment this out
 //        System_printf("uartTask\n");
 //        System_flush();

@@ -9,18 +9,16 @@
 #define FUNCTIONS_MOVEMENTSENSOR_MOVEMENTSENSOR_H_
 
 #include <xdc/std.h>
-#include <xdc/runtime/System.h>
-#include <ti/sysbios/BIOS.h>
-#include <ti/sysbios/knl/Clock.h>
-#include <ti/sysbios/knl/Task.h>
-#include <ti/drivers/I2C.h>
-#include <ti/drivers/i2c/I2CCC26XX.h>
+#include "stdbool.h"
 
-#include "Board.h"
-#include "sensors/mpu9250.h"
+enum mpuState {
+    INITIALIZING, STANDBY, COLLECTING
+};
 
-Void movementTask(UArg arg0, UArg arg1);
+void MovementSensor_registerTask();
 
-Void Movement_registerTask();
+void MovementSensor_collectData();
+
+enum mpuState MovementSensor_getState();
 
 #endif /* FUNCTIONS_MOVEMENTSENSOR_MOVEMENTSENSOR_H_ */

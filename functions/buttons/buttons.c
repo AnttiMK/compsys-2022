@@ -6,8 +6,20 @@
  */
 
 #include <functions/buttons/buttons.h>
-#include <functions/buzzer/buzzer.h>
+
 #include <stdbool.h>
+#include <xdc/std.h>
+#include <xdc/runtime/System.h>
+
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Clock.h>
+#include <ti/sysbios/knl/Task.h>
+#include <ti/drivers/PIN.h>
+#include <ti/drivers/pin/PINCC26XX.h>
+
+#include "Board.h"
+#include <functions/buzzer/buzzer.h>
+#include <functions/movementSensor/movementSensor.h>
 
 #define STACKSIZE 1024
 Char auxBtnTaskStack[STACKSIZE];
@@ -131,8 +143,13 @@ static void pwrButtonTask(UArg arg0, UArg arg1){
             increment++;
 
         } else {
+            if (increment > 1) {
+                increment = 0;
+                MovementSensor_collectData();
+            }
 
             if (increment > 30) {
+                increment = 0;
                 playSong(nokia());
                 PIN_close(pwrBtnHandle);
                 PINCC26XX_setWakeup(pwrBtnWakeupConfig);
@@ -140,10 +157,10 @@ static void pwrButtonTask(UArg arg0, UArg arg1){
             }
 
             if (menuState == 1 && increment > 0 && increment < 30){
+                increment = 0;
                 playSong(tkn());
             }
         }
-        increment = 0;
 
         Task_sleep(100000 / Clock_tickPeriod);
     }

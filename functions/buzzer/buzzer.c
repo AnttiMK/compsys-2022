@@ -42,8 +42,12 @@
 * ------------------------------------------------------------------------------
 */
 
+#include <functions/buzzer/buzzer.h>
+
 // TI RTOS drivers
 #include <ti/sysbios/knl/Task.h>
+#include <ti/sysbios/BIOS.h>
+#include <ti/sysbios/knl/Clock.h>
 #include <ti/drivers/Power.h>
 #include <ti/drivers/power/PowerCC26XX.h>
 
@@ -51,7 +55,6 @@
 // (until a Timer RTOS driver is in place)
 #include <ti/drivers/pin/PINCC26XX.h>
 #include <driverlib/timer.h>
-#include <functions/buzzer/buzzer.h>
 
 #include <xdc/std.h>
 #include <xdc/runtime/System.h>
@@ -197,11 +200,11 @@ void playSong(Song *song) {
 
 static void registerTask() {
     Task_Params buzzerTaskParams;
-    Char stack[1024];
+    Char buzzerTaskStack[1024];
 
     Task_Params_init(&buzzerTaskParams);
     buzzerTaskParams.stackSize = 1024;
-    buzzerTaskParams.stack = &stack;
+    buzzerTaskParams.stack = &buzzerTaskStack;
     buzzerTaskParams.priority = 2;
 
     Task_Handle buzzerTaskHandle = Task_create(buzzerTask, &buzzerTaskParams, NULL);
