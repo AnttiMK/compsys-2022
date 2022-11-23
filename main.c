@@ -29,7 +29,6 @@ Int main(void) {
     /* Wireless kills the board so we're not using it :-) */
     // Wireless_init();
 
-    //i2c käyttöön otto
     Board_initI2C();
     Board_initUART();
     UART_registerTask();

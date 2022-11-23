@@ -222,3 +222,15 @@ Song *beep1() {
     beep1_beep.melody = beep1_melody;
     return &beep1_beep;
 }
+
+
+static Song beep2_beep;
+static int beep2_melody[] = {
+    NOTE_G4,8, REST,8, NOTE_G4,8, REST,4, NOTE_G4,8, REST,8, NOTE_G4,8, -1 //45
+};
+
+Song *beep2() {
+    beep2_beep.tempo = 300;
+    beep2_beep.melody = beep2_melody;
+    return &beep2_beep;
+}

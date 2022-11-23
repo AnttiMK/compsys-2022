@@ -18,6 +18,7 @@
 #include <ti/drivers/UART.h>
 #include "Board.h"
 #include <functions/movementSensor/movementSensor.h>
+#include "functions/buzzer/buzzer.h"
 
 #define STACKSIZE 2048
 Char uartTaskStack[STACKSIZE];
@@ -41,7 +42,7 @@ static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
     UART_read(uart, rxBuf, 80);
 }
 
-static void sendMessage(char msg[], ...) {
+void sendMessage(char msg[], ...) {
     va_list argptr;
     va_start(argptr, msg);
     vsprintf(writeBuffer, msg, argptr);
@@ -54,8 +55,8 @@ static void uartTask(UArg arg0, UArg arg1) {
     // JTKJ: Exercise 4. Setup here UART connection as 9600,8n1
     // UART-kirjaston asetukset
 
-    char input;
-    char ping_msg[20];
+//    char input;
+//    char ping_msg[20];
     UART_Params uartParams;
 
     // Alustetaan sarjaliikenne
@@ -76,6 +77,7 @@ static void uartTask(UArg arg0, UArg arg1) {
     }
 
     UART_read(uart, uartBuffer, 80);
+
     sendMessage("id:420,ping");
 
     while (1) {
@@ -98,7 +100,12 @@ static void uartTask(UArg arg0, UArg arg1) {
             sendMessage("id:2420,session:end");
         }
 
-        //Task_sleep(10000 / Clock_tickPeriod);
+        UART_read(uart, uartBuffer, 80);
+
+        //if BEEP then beep2
+        if (strcmp((const char*)uartBuffer, "id:2420,BEEP") == 0) {
+            playSong(beep2());
+        }
 
         // Vastaanotetaan 1 merkki kerrallaan input-muuttujaan
 //        UART_read(uart, &input, 29);
@@ -106,16 +113,6 @@ static void uartTask(UArg arg0, UArg arg1) {
 //        sprintf(echo_msg, "Received: %c\n", input);
 //        System_printf(echo_msg);
 //        System_flush();
-
-        // JTKJ: Tehtävä 3. Kun tila on oikea, tulosta sensoridata merkkijonossa debug-ikkunaan
-        //       Muista tilamuutos
-        // JTKJ: Exercise 3. Print out sensor data as string to debug window if the state is correct
-        //       Remember to modify state
-
-//        if (programState == DATA_READY) {
-//            sprintf(echo_msg, "%f\n", ambientLight);
-//            programState = WAITING;
-//        }
 
         // JTKJ: Tehtävä 4. Lähetä sama merkkijono UARTilla
         // JTKJ: Exercise 4. Send the same sensor data string with UART

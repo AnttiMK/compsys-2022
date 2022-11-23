@@ -23,6 +23,7 @@
 #include "Board.h"
 #include "sensors/mpu9250.h"
 #include <functions/buzzer/buzzer.h>
+#include <functions/messaging/uart.h>
 
 #define STACKSIZE 2048
 static Char movementTaskStack[STACKSIZE];
@@ -139,9 +140,9 @@ static void movementTask(UArg arg0, UArg arg1) {
             recognizeMove(x1, y1, z1);
 
             float x2,y2,z2,xg2,yg2,zg2;
-            calculateVariance(&MovementSensor_sensorData, &x2, &y2, &z2, &xg2, &yg2, &zg2);
+            calculateVariance(MovementSensor_sensorData, &x2, &y2, &z2, &xg2, &yg2, &zg2);
 
-            sprintf(msg, "Var: %f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
+            sprintf(msg, "V: %f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);

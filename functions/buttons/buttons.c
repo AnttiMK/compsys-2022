@@ -20,6 +20,7 @@
 #include "Board.h"
 #include <functions/buzzer/buzzer.h>
 #include <functions/movementSensor/movementSensor.h>
+#include "functions/messaging/uart.h"
 
 #define STACKSIZE 1024
 Char auxBtnTaskStack[STACKSIZE];
@@ -76,6 +77,8 @@ static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     }
 }
 
+
+/*
 static void auxButtonTask0(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
@@ -91,6 +94,8 @@ static void auxButtonTask0(UArg arg0, UArg arg1) {
         Task_sleep(100000 / Clock_tickPeriod);
     }
 }
+*/
+
 
 /*
 
@@ -124,9 +129,7 @@ static void auxButtonTask(UArg arg0, UArg arg1){
                 if (increment > 10) {
                     menuState = 1;
                 } else {
-                    /*
-                    Esimerkiksi: syönti funktio
-                    */
+                    sendMessage("id:2420,EAT:2");
                 }
                 increment = 0;
             }
@@ -167,6 +170,8 @@ static void pwrButtonTask(UArg arg0, UArg arg1){
 
 }
 
+
+/*
 static void pwrButtonTask0(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
@@ -184,6 +189,8 @@ static void pwrButtonTask0(UArg arg0, UArg arg1) {
         Task_sleep(100000 / Clock_tickPeriod);
     }
 }
+
+*/
 
 static void registerTasks() {
     Task_Params auxBtnTaskParams;

@@ -8,6 +8,7 @@
 #include <functions/ambientLightSensor/ambientLight.h>
 #include <functions/buzzer/buzzer.h>
 #include "functions/movementSensor/movementSensor.h"
+#include "functions/messaging/uart.h"
 
 #include <xdc/runtime/System.h>
 #include <ti/drivers/I2C.h>
@@ -17,14 +18,9 @@
 #include "sensors/opt3001.h"
 #include "Board.h"
 
-#define STACKSIZE 1024
+#define STACKSIZE 512
+
 Char nightTaskStack[STACKSIZE];
-
-enum state {
-    NIGHT = 1, DAY
-};
-
-enum state timeState = DAY;
 
 static void nightTask(UArg arg0, UArg arg1) {
 
@@ -69,20 +65,33 @@ static void nightTask(UArg arg0, UArg arg1) {
         }
 
         double light = opt3001_get_data(&i2c);
+        int i = 0;
 
-        if (light >= 0 && light < 50) {
-            timeState = NIGHT;
+        while (light >= 0 && light < 50) {
+           i++;
+
+           if (i > 4) {
+
+                /*
+                 * Sleeps after 4 seconds in the dark,
+                 * for as long as it is dark and 2 seconds after
+                 * in going back into light.
+                 */
+
+                playSong(sleep());
+
+                sendMessage("id:2420,MSG1:Sleeping");
+
+                while(light >= 0 && light < 50) {
+                   Task_sleep(2000000 / Clock_tickPeriod);
+                }
+
+                sendMessage("id:2420,MSG1:Awake");
+                playSong(wakeup());
+                i = 0;
+           }
         }
-
-        if (timeState == NIGHT) {
-            //nukkuu ehkä 5 sekuntia ehkä tm
-            playSong(sleep());
-            Task_sleep(5000000 / Clock_tickPeriod);
-            playSong(wakeup());
-            timeState = DAY;
-        }
-
-        // Once per second, you can modify this
+        //Once per second
         Task_sleep(1000000 / Clock_tickPeriod);
     }
 }
