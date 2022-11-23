@@ -5,8 +5,8 @@
  *      Author: Joonas
  */
 
-#ifndef _MOVMENTTASK_H_
-#define _MOVMENTTASK_H_
+#ifndef _MOVEMENTTASK_H_
+#define _MOVEMENTTASK_H_
 
 #include <math.h>
 #include <stdio.h>

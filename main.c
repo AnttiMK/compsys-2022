@@ -32,6 +32,7 @@ Int main(void) {
     //i2c käyttöön otto
     Board_initI2C();
     Board_initUART();
+    UART_registerTask();
     MovementSensor_registerTask();
 
     AmbientLight_registerTask();

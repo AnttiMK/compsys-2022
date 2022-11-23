@@ -17,14 +17,14 @@
 #include <ti/drivers/I2C.h>
 #include <ti/drivers/i2c/I2CCC26XX.h>
 
-#include <functions/movmentSensor/dataParser.h>
-#include <functions/movmentSensor/movmentTask.h>
+#include <functions/movementSensor/dataParser.h>
+#include <functions/movementSensor/movementTask.h>
 
 #include "Board.h"
 #include "sensors/mpu9250.h"
 #include <functions/buzzer/buzzer.h>
 
-#define STACKSIZE 4096
+#define STACKSIZE 2048
 static Char movementTaskStack[STACKSIZE];
 enum mpuState collectionState = INITIALIZING;
 
@@ -35,7 +35,7 @@ static PIN_State MpuPinState;
 static I2C_Handle i2cMPU; // Own i2c-interface for MPU9250 sensor
 static I2C_Params i2cMPUParams;
 
-static float sensorData[7][100];
+float MovementSensor_sensorData[7][100];
 
 // MPU power pin
 static PIN_Config MpuPinConfig[] = {
@@ -101,46 +101,51 @@ static void movementTask(UArg arg0, UArg arg1) {
             int i;
             for (i = 0; i < 100; ++i) {
                 mpu9250_get_data(&i2cMPU, &ax, &ay, &az, &gx, &gy, &gz);
-                sensorData[0][i] = (float) i * 0.05;
-                sensorData[1][i] = ax;
-                sensorData[2][i] = ay;
-                sensorData[3][i] = az;
-                sensorData[4][i] = gx;
-                sensorData[5][i] = gy;
-                sensorData[6][i] = gz;
+                MovementSensor_sensorData[0][i] = (float) i * 0.05;
+                MovementSensor_sensorData[1][i] = ax;
+                MovementSensor_sensorData[2][i] = ay;
+                MovementSensor_sensorData[3][i] = az;
+                MovementSensor_sensorData[4][i] = gx;
+                MovementSensor_sensorData[5][i] = gy;
+                MovementSensor_sensorData[6][i] = gz;
 
                 /* Sleep 100ms */
                 Task_sleep(50000 / Clock_tickPeriod);
             }
             playSong(beep1());
+            UART_notifyMpuDataReady();
 
             I2C_close(i2cMPU);
             collectionState = STANDBY;
 
             int j;
             for (j = 0; j < 100; ++j) {
-                sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", sensorData[0][j], sensorData[1][j], sensorData[2][j], sensorData[3][j], sensorData[4][j], sensorData[5][j], sensorData[6][j]);
+                sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", MovementSensor_sensorData[0][j], MovementSensor_sensorData[1][j], MovementSensor_sensorData[2][j], MovementSensor_sensorData[3][j], MovementSensor_sensorData[4][j], MovementSensor_sensorData[5][j], MovementSensor_sensorData[6][j]);
 
                 System_printf(msg);
                 System_flush();
                 memset(msg, 0, 60);
             }
 
-            float x1,y1,z1,xg1,yg1,zg1 = calculateSD(&sensorData);
+            float x1,y1,z1,xg1,yg1,zg1;
 
-            sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
+
+            sprintf(msg, "SD: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
 
-            recognizeMove(float x1, float y1, float z1);
-            
-            float x2,y2,z2,xg2,yg2,zg2 = calculateVariance(&sensorData);
+            recognizeMove(x1, y1, z1);
 
-            sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
+            float x2,y2,z2,xg2,yg2,zg2;
+            calculateVariance(&MovementSensor_sensorData, &x2, &y2, &z2, &xg2, &yg2, &zg2);
+
+            sprintf(msg, "Var: %f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
+
 
 
         }

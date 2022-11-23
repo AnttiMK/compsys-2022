@@ -1,22 +1,17 @@
 /*
- * dataParser.c
- *
- *  Created on: 22.11.2022
- *      Author: Joonas
- */
+ dataParser.c
 
+ Created on: 22.11.2022
+ Author: Joonas
+ */
 
 #include <math.h>
 #include <stdio.h>
-#include <functions/movmentSensor/dataParser.h>
+#include <functions/movementSensor/dataParser.h>
 
 // CREDITS: https://www.programiz.com/c-programming/examples/standard-deviation
 
-float calculateSD(float *data[7][100]);
-
-float calculateVariance(float *data[7][100]);
-
-float calculateSD(float *data[7][100]) {
+void calculateSD(float data[7][100], float *x1, float *y1, float *z1, float *xg1, float *yg1, float *zg1) {
 
     float sumX = 0.0, meanX, SDX = 0.0;
     float sumY = 0.0, meanY, SDY = 0.0;
@@ -28,12 +23,12 @@ float calculateSD(float *data[7][100]) {
     int i;
     for (i = 0; i < 100; ++i) {
 
-        sumX += *data[1][i];
-        sumY += *data[2][i];
-        sumZ += *data[3][i];
-        sumXg += *data[4][i];
-        sumYg += *data[5][i];
-        sumZg += *data[6][i];
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+        sumXg += data[4][i];
+        sumYg += data[5][i];
+        sumZg += data[6][i];
     }
     meanX = sumX / 100;
     meanY = sumY / 100;
@@ -44,36 +39,41 @@ float calculateSD(float *data[7][100]) {
 
     for (i = 0; i < 100; ++i) {
 
-        SDX += pow(*data[1][i] - meanX, 2);
-        SDY += pow(*data[2][i] - meanY, 2);
-        SDZ += pow(*data[3][i] - meanZ, 2);
-        SDXg += pow(*data[4][i] - meanX, 2);
-        SDYg += pow(*data[5][i] - meanY, 2);
-        SDZg += pow(*data[6][i] - meanZ, 2);
+        SDX += pow(data[1][i] - meanX, 2);
+        SDY += pow(data[2][i] - meanY, 2);
+        SDZ += pow(data[3][i] - meanZ, 2);
+        SDXg += pow(data[4][i] - meanXg, 2);
+        SDYg += pow(data[5][i] - meanYg, 2);
+        SDZg += pow(data[6][i] - meanZg, 2);
     }
 
-    return sqrt(SDX / 100), sqrt(SDY / 100), sqrt(SDZ / 100),sqrt(SDXg / 100), sqrt(SDYg / 100), sqrt(SDZg / 100);
+    *x1 = sqrt(SDX / 100);
+    *y1 = sqrt(SDY / 100);
+    *z1 = sqrt(SDZ / 100);
+    *xg1 = sqrt(SDXg / 100);
+    *yg1 = sqrt(SDYg / 100);
+    *zg1 = sqrt(SDZg / 100);
 }
 
 // CREDITS: https://www.sanfoundry.com/c-program-mean-variance-standard-deviation/
 
-float calculateVariance(float *data[7][100]) {
+void calculateVariance(float data[7][100], float *x2, float *y2, float *z2, float *xg2, float *yg2, float *zg2) {
 
-    float averageX, std_deviationX, sumX = 0, sum1X = 0;
-    float averageY, std_deviationY, sumY = 0, sum1Y = 0;
-    float averageZ, std_deviationZ, sumZ = 0, sum1Z = 0;
-    float averageXg, std_deviationXg, sumXg = 0, sum1Xg = 0;
-    float averageYg, std_deviationYg, sumYg = 0, sum1Yg = 0;
-    float averageZg, std_deviationZg, sumZg = 0, sum1Zg = 0;
+    float averageX, sumX = 0.0, sum1X = 0.0;
+    float averageY, sumY = 0.0, sum1Y = 0.0;
+    float averageZ, sumZ = 0.0, sum1Z = 0.0;
+    float averageXg, sumXg = 0.0, sum1Xg = 0.0;
+    float averageYg, sumYg = 0.0, sum1Yg = 0.0;
+    float averageZg, sumZg = 0.0, sum1Zg = 0.0;
 
     int i;
     for (i = 0; i < 100; ++i) {
-        sumX += *data[1][i];
-        sumY += *data[2][i];
-        sumZ += *data[3][i];
-        sumXg += *data[4][i];
-        sumYg += *data[5][i];
-        sumZg += *data[6][i];
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+        sumXg += data[4][i];
+        sumYg += data[5][i];
+        sumZg += data[6][i];
     }
 
     averageX = sumX / 100;
@@ -83,23 +83,22 @@ float calculateVariance(float *data[7][100]) {
     averageYg = sumYg / 100;
     averageZg = sumZg / 100;
 
+
     for (i = 0; i < 100; ++i) {
 
-        sum1X = sum1X + pow((*data[1][i] - averageX), 2);
-        sum1Y = sum1Y + pow((*data[2][i] - averageY), 2);
-        sum1Z = sum1Z + pow((*data[3][i] - averageZ), 2);
-        sum1Xg = sum1Xg + pow((*data[4][i] - averageXg), 2);
-        sum1Yg = sum1Yg + pow((*data[5][i] - averageYg), 2);
-        sum1Zg = sum1Zg + pow((*data[6][i] - averageZg), 2);
+        sum1X = sum1X + pow((data[1][i] - averageX), 2);
+        sum1Y = sum1Y + pow((data[2][i] - averageY), 2);
+        sum1Z = sum1Z + pow((data[3][i] - averageZ), 2);
+        sum1Xg = sum1Xg + pow((data[4][i] - averageXg), 2);
+        sum1Yg = sum1Yg + pow((data[5][i] - averageYg), 2);
+        sum1Zg = sum1Zg + pow((data[6][i] - averageZg), 2);
     }
 
-    std_deviationX = sqrt(sum1X / 100);
-    std_deviationY = sqrt(sum1Y / 100);
-    std_deviationZ = sqrt(sum1Z / 100);
-    std_deviationXg = sqrt(sum1Xg / 100);
-    std_deviationYg = sqrt(sum1Yg / 100);
-    std_deviationZg = sqrt(sum1Zg / 100);
+    *x2 = sum1X / 100;
+    *y2 = sum1Y / 100;
+    *z2 = sum1Z / 100;
+    *xg2 = sum1Xg / 100;
+    *yg2 = sum1Yg / 100;
+    *zg2 = sum1Zg / 100;
 
-
-    return std_deviationX, std_deviationY, std_deviationZ, std_deviationXg, std_deviationYg, std_deviationZg;
 }

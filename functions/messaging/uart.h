@@ -10,4 +10,6 @@
 
 void UART_registerTask();
 
+void UART_notifyMpuDataReady();
+
 #endif /* FUNCTIONS_MESSAGING_UART_H_ */

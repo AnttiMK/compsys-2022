@@ -11,6 +11,8 @@
 #include <xdc/std.h>
 #include "stdbool.h"
 
+extern float MovementSensor_sensorData[7][100];
+
 enum mpuState {
     INITIALIZING, STANDBY, COLLECTING
 };
