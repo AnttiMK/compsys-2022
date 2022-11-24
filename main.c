@@ -20,6 +20,7 @@
 #include <functions/messaging/uart.h>
 #include <functions/messaging/wireless.h>
 
+
 Int main(void) {
     // Task variables
 

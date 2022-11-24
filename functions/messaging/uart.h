@@ -11,6 +11,7 @@
 void UART_registerTask();
 
 void UART_notifyMpuDataReady();
+void UART_notifyAmbientDataReady();
 
 void sendMessage(char msg[], ...);
 

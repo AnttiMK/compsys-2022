@@ -119,44 +119,76 @@ static void movementTask(UArg arg0, UArg arg1) {
             I2C_close(i2cMPU);
             collectionState = STANDBY;
 
-            int j;
-            for (j = 0; j < 100; ++j) {
-                sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", MovementSensor_sensorData[0][j], MovementSensor_sensorData[1][j], MovementSensor_sensorData[2][j], MovementSensor_sensorData[3][j], MovementSensor_sensorData[4][j], MovementSensor_sensorData[5][j], MovementSensor_sensorData[6][j]);
+//            int j;
+//            for (j = 0; j < 100; ++j) {
+//                sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", MovementSensor_sensorData[0][j], MovementSensor_sensorData[1][j], MovementSensor_sensorData[2][j], MovementSensor_sensorData[3][j], MovementSensor_sensorData[4][j], MovementSensor_sensorData[5][j], MovementSensor_sensorData[6][j]);
+//
+//                System_printf(msg);
+//                System_flush();
+//                memset(msg, 0, 60);
+//            }
 
-                System_printf(msg);
-                System_flush();
-                memset(msg, 0, 60);
-            }
-
-            float x1,y1,z1,xg1,yg1,zg1;
+            float x1, y1, z1, xg1, yg1, zg1;
+            float sum_x = 0, sum_y = 0, sum_z = 0;
 
             //calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
-            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,0);
-            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,25);
-            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,50);
-            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,75);
-
-            sprintf(msg, "SD: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
+                         &zg1, 0);
+            sprintf(msg, "SD1: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
+            sum_x += x1;
+            sum_y += y1;
+            sum_z += z1;
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
+                         &zg1, 25);
+            sprintf(msg, "SD2: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            System_printf(msg);
+            System_flush();
+            memset(msg, 0, 60);
+            sum_x += x1;
+            sum_y += y1;
+            sum_z += z1;
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
+                         &zg1, 50);
+            sprintf(msg, "SD3: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            System_printf(msg);
+            System_flush();
+            memset(msg, 0, 60);
+            sum_x += x1;
+            sum_y += y1;
+            sum_z += z1;
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
+                         &zg1, 75);
 
-            recognizeMove(x1, y1, z1);
+            sprintf(msg, "SD4: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            System_printf(msg);
+            System_flush();
+            memset(msg, 0, 60);
+            sum_x += x1;
+            sum_y += y1;
+            sum_z += z1;
 
-            float x2,y2,z2,xg2,yg2,zg2;
-            calculateVariance(MovementSensor_sensorData, &x2, &y2, &z2, &xg2, &yg2, &zg2);
+            sum_x = sum_x/4;
+            sum_y = sum_y/4;
+            sum_z = sum_z/4;
+
+            recognizeMove(sum_x, sum_y, sum_z);
+
+            float x2, y2, z2, xg2, yg2, zg2;
+            calculateVariance(MovementSensor_sensorData, &x2, &y2, &z2, &xg2,
+                              &yg2, &zg2);
 
             sprintf(msg, "V: %f,%f,%f,%f,%f,%f\n", x2, y2, z2, xg2, yg2, zg2);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
 
-
-
         }
 
-        // Sleep 100ms
-        Task_sleep(100000 / Clock_tickPeriod);
+        // Sleep 500ms
+        Task_sleep(500000 / Clock_tickPeriod);
     }
 
     // Program never gets here..

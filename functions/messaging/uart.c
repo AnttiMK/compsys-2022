@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdbool.h>
 #include <xdc/std.h>
 #include <xdc/runtime/System.h>
 #include <ti/sysbios/BIOS.h>
@@ -18,9 +19,10 @@
 #include <ti/drivers/UART.h>
 #include "Board.h"
 #include <functions/movementSensor/movementSensor.h>
+#include <functions/ambientLightSensor/ambientLight.h>
 #include "functions/buzzer/buzzer.h"
 
-#define STACKSIZE 2048
+#define STACKSIZE 1024
 Char uartTaskStack[STACKSIZE];
 
 static UART_Handle uart;
@@ -34,9 +36,19 @@ enum dataState {
 enum dataState mpuDataState = NOT_READY;
 enum dataState ambientDataState = NOT_READY;
 
+bool startsWith(const char *a, const char *b) {
+    if (strncmp(a, b, strlen(b)) == 0) return 1;
+    return 0;
+}
+
 static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
-    System_printf(rxBuf);
-    System_flush();
+    if (startsWith(rxBuf, "2420")) {
+
+        //if BEEP then beep2
+        if (strcmp((const char*) uartBuffer, "2420,BEEP") == 0) {
+            playSong(beep2());
+        }
+    }
 
     // K‰sittelij‰n viimeisen‰ asiana siirryt‰‰n odottamaan uutta keskeytyst‰..
     UART_read(uart, rxBuf, 80);
@@ -100,11 +112,10 @@ static void uartTask(UArg arg0, UArg arg1) {
             sendMessage("id:2420,session:end");
         }
 
-        UART_read(uart, uartBuffer, 80);
-
-        //if BEEP then beep2
-        if (strcmp((const char*)uartBuffer, "id:2420,BEEP") == 0) {
-            playSong(beep2());
+        if (ambientDataState == READY) {
+            ambientDataState = NOT_READY;
+            sendMessage("id:2420,session:start");
+            sendMessage("id:2420,light:%.4f,session:end", AmbientLight_amount);
         }
 
         // Vastaanotetaan 1 merkki kerrallaan input-muuttujaan
@@ -123,7 +134,7 @@ static void uartTask(UArg arg0, UArg arg1) {
 //        System_flush();
 
         // Once per second, you can modify this
-        Task_sleep(1000000 / Clock_tickPeriod);
+        Task_sleep(250000 / Clock_tickPeriod);
     }
 }
 
@@ -143,4 +154,8 @@ void UART_registerTask() {
 
 void UART_notifyMpuDataReady() {
     mpuDataState = READY;
+}
+
+void UART_notifyAmbientDataReady() {
+    ambientDataState = READY;
 }

@@ -19,8 +19,9 @@
 #include "Board.h"
 
 #define STACKSIZE 512
-
 Char nightTaskStack[STACKSIZE];
+
+double AmbientLight_amount = 0;
 
 static void nightTask(UArg arg0, UArg arg1) {
 
@@ -47,6 +48,8 @@ static void nightTask(UArg arg0, UArg arg1) {
     opt3001_setup(&i2c);
     Task_sleep(100000 / Clock_tickPeriod);
 
+    double *light = &AmbientLight_amount;
+
     while (1) {
         while (MovementSensor_getState() == COLLECTING) {
             if (i2c != NULL) {
@@ -64,13 +67,13 @@ static void nightTask(UArg arg0, UArg arg1) {
             }
         }
 
-        double light = opt3001_get_data(&i2c);
+        *light = opt3001_get_data(&i2c);
+        UART_notifyAmbientDataReady();
+
         int i = 0;
+        while (*light >= 0 && *light < 50) {
 
-        while (light >= 0 && light < 50) {
-           i++;
-
-           if (i > 4) {
+            if (i > 4) {
 
                 /*
                  * Sleeps after 4 seconds in the dark,
@@ -82,14 +85,17 @@ static void nightTask(UArg arg0, UArg arg1) {
 
                 sendMessage("id:2420,MSG1:Sleeping");
 
-                while(light >= 0 && light < 50) {
-                   Task_sleep(2000000 / Clock_tickPeriod);
+                while (*light >= 0 && *light < 50) {
+                    Task_sleep(2000000 / Clock_tickPeriod);
+                    *light = opt3001_get_data(&i2c);
+                    UART_notifyAmbientDataReady();
                 }
 
                 sendMessage("id:2420,MSG1:Awake");
                 playSong(wakeup());
                 i = 0;
-           }
+            }
+            i++;
         }
         //Once per second
         Task_sleep(1000000 / Clock_tickPeriod);

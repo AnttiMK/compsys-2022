@@ -64,7 +64,7 @@ void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg
     float sumZg = 0.0, meanZg, SDZg = 0.0;
 
     int i;
-    for (i = index; i < 25; ++i) {
+    for (i = index; i < index + 25; ++i) {
 
         sumX += data[1][i];
         sumY += data[2][i];
@@ -80,7 +80,7 @@ void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg
     meanYg = sumYg / 25;
     meanZg = sumZg / 25;
 
-    for (i = index; i < 25; ++i) {
+    for (i = index; i < index + 25; ++i) {
 
         SDX += pow(data[1][i] - meanX, 2);
         SDY += pow(data[2][i] - meanY, 2);

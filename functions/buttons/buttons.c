@@ -22,7 +22,7 @@
 #include <functions/movementSensor/movementSensor.h>
 #include "functions/messaging/uart.h"
 
-#define STACKSIZE 1024
+#define STACKSIZE 512
 Char auxBtnTaskStack[STACKSIZE];
 Char pwrBtnTaskStack[STACKSIZE];
 
@@ -38,9 +38,8 @@ PIN_Config pwrBtnConfig[] = {
 Board_BUTTON1 | PIN_INPUT_EN | PIN_PULLUP | PIN_IRQ_BOTHEDGES,
                               PIN_TERMINATE };
 PIN_Config pwrBtnWakeupConfig[] = {
-   Board_BUTTON1 | PIN_INPUT_EN | PIN_PULLUP | PINCC26XX_WAKEUP_NEGEDGE,
-   PIN_TERMINATE
-};
+Board_BUTTON1 | PIN_INPUT_EN | PIN_PULLUP | PINCC26XX_WAKEUP_NEGEDGE,
+                                    PIN_TERMINATE };
 
 enum state {
     OPEN = 1, PRESSED
@@ -77,59 +76,61 @@ static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     }
 }
 
-
 /*
-static void auxButtonTask0(UArg arg0, UArg arg1) {
-    int increment = 0;
-    while (1) {
-        if (auxButtonState == PRESSED) {
-            increment++;
-        } else {
-            if (increment > 10) {
-                playSong(nokia());
-            }
+ static void auxButtonTask0(UArg arg0, UArg arg1) {
+ int increment = 0;
+ while (1) {
+ if (auxButtonState == PRESSED) {
+ increment++;
+ } else {
+ if (increment > 10) {
+ playSong(nokia());
+ }
 
-            increment = 0;
-        }
-        Task_sleep(100000 / Clock_tickPeriod);
-    }
-}
-*/
-
+ increment = 0;
+ }
+ Task_sleep(100000 / Clock_tickPeriod);
+ }
+ }
+ */
 
 /*
 
-auxButtonTask2 ja pwrButtonTask2 menu rakenne testausta varten. Esimerkiksi käynnistyessä 
-power ja aux nappi, lyhyt painallus aux nappia = esim syönti funktio. Pitkä painallus aux nappia = 
-menu value = 1, jolloin lyhyt painallus power nappia = soittaa tkn, 
-lyhyt painallus aux nappia = soittaa mario, pitkä painallus aux nappia = menee pois menu tilasta
+ auxButtonTask2 ja pwrButtonTask2 menu rakenne testausta varten. Esimerkiksi käynnistyessä
+ power ja aux nappi, lyhyt painallus aux nappia = esim syönti funktio. Pitkä painallus aux nappia =
+ menu value = 1, jolloin lyhyt painallus power nappia = soittaa tkn,
+ lyhyt painallus aux nappia = soittaa mario, pitkä painallus aux nappia = menee pois menu tilasta
 
-*/
+ */
 
-static void auxButtonTask(UArg arg0, UArg arg1){
+static void auxButtonTask(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
-        
-        if(menuState == 1){
+        if (menuState == 1) {
             if (auxButtonState == PRESSED) {
                 increment++;
-            } else {
+            }
+            else {
                 if (increment > 10) {
                     menuState = 0;
-                } else if (increment > 0) {
+                }
+                else if (increment > 0) {
                     playSong(mario());
                 }
                 increment = 0;
             }
-        } else {
+        }
+        else {
             if (auxButtonState == PRESSED) {
                 increment++;
 
-            } else {
+            }
+            else {
                 if (increment > 10) {
                     menuState = 1;
-                } else {
-                    sendMessage("id:2420,EAT:2");
+                }
+                else if (increment > 0) {
+                    sendMessage("id:2420,EAT:1");
                 }
                 increment = 0;
             }
@@ -139,13 +140,14 @@ static void auxButtonTask(UArg arg0, UArg arg1){
     }
 }
 
-static void pwrButtonTask(UArg arg0, UArg arg1){
+static void pwrButtonTask(UArg arg0, UArg arg1) {
     int increment = 0;
     while (1) {
         if (pwrButtonState == PRESSED) {
             increment++;
 
-        } else {
+        }
+        else {
             if (increment > 1) {
                 increment = 0;
                 MovementSensor_collectData();
@@ -156,10 +158,10 @@ static void pwrButtonTask(UArg arg0, UArg arg1){
                 playSong(nokia());
                 PIN_close(pwrBtnHandle);
                 PINCC26XX_setWakeup(pwrBtnWakeupConfig);
-                Power_shutdown(NULL,0);
+                Power_shutdown(NULL, 0);
             }
 
-            if (menuState == 1 && increment > 0 && increment < 30){
+            if (menuState == 1 && increment > 0 && increment < 30) {
                 increment = 0;
                 playSong(tkn());
             }
@@ -170,27 +172,26 @@ static void pwrButtonTask(UArg arg0, UArg arg1){
 
 }
 
-
 /*
-static void pwrButtonTask0(UArg arg0, UArg arg1) {
-    int increment = 0;
-    while (1) {
-        if (pwrButtonState == PRESSED) {
-            increment++;
+ static void pwrButtonTask0(UArg arg0, UArg arg1) {
+ int increment = 0;
+ while (1) {
+ if (pwrButtonState == PRESSED) {
+ increment++;
 
-            if (increment > 30) {
-                playSong(nokia());
-                PIN_close(pwrBtnHandle);
-                PINCC26XX_setWakeup(pwrBtnWakeupConfig);
-                Power_shutdown(NULL,0);
-            }
-        }
+ if (increment > 30) {
+ playSong(nokia());
+ PIN_close(pwrBtnHandle);
+ PINCC26XX_setWakeup(pwrBtnWakeupConfig);
+ Power_shutdown(NULL,0);
+ }
+ }
 
-        Task_sleep(100000 / Clock_tickPeriod);
-    }
-}
+ Task_sleep(100000 / Clock_tickPeriod);
+ }
+ }
 
-*/
+ */
 
 static void registerTasks() {
     Task_Params auxBtnTaskParams;

@@ -10,6 +10,8 @@
 
 #include <xdc/std.h>
 
+extern double AmbientLight_amount;
+
 void AmbientLight_registerTask();
 
 #endif /* FUNCTIONS_AMBIENTLIGHTSENSOR_AMBIENTLIGHT_H_ */
