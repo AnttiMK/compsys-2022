@@ -55,6 +55,50 @@ void calculateSD(float data[7][100], float *x1, float *y1, float *z1, float *xg1
     *zg1 = sqrt(SDZg / 100);
 }
 
+void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg1, float *yg1, float *zg1, int index) {
+    float sumX = 0.0, meanX, SDX = 0.0;
+    float sumY = 0.0, meanY, SDY = 0.0;
+    float sumZ = 0.0, meanZ, SDZ = 0.0;
+    float sumXg = 0.0, meanXg, SDXg = 0.0;
+    float sumYg = 0.0, meanYg, SDYg = 0.0;
+    float sumZg = 0.0, meanZg, SDZg = 0.0;
+
+    int i;
+    for (i = index; i < 25; ++i) {
+
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+        sumXg += data[4][i];
+        sumYg += data[5][i];
+        sumZg += data[6][i];
+    }
+    meanX = sumX / 25;
+    meanY = sumY / 25;
+    meanZ = sumZ / 25;
+    meanXg = sumXg / 25;
+    meanYg = sumYg / 25;
+    meanZg = sumZg / 25;
+
+    for (i = index; i < 25; ++i) {
+
+        SDX += pow(data[1][i] - meanX, 2);
+        SDY += pow(data[2][i] - meanY, 2);
+        SDZ += pow(data[3][i] - meanZ, 2);
+        SDXg += pow(data[4][i] - meanXg, 2);
+        SDYg += pow(data[5][i] - meanYg, 2);
+        SDZg += pow(data[6][i] - meanZg, 2);
+    }
+
+    *x1 = sqrt(SDX / 25);
+    *y1 = sqrt(SDY / 25);
+    *z1 = sqrt(SDZ / 25);
+    *xg1 = sqrt(SDXg / 25);
+    *yg1 = sqrt(SDYg / 25);
+    *zg1 = sqrt(SDZg / 25);
+
+}
+
 // CREDITS: https://www.sanfoundry.com/c-program-mean-variance-standard-deviation/
 
 void calculateVariance(float data[7][100], float *x2, float *y2, float *z2, float *xg2, float *yg2, float *zg2) {

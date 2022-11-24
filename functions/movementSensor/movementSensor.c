@@ -130,7 +130,11 @@ static void movementTask(UArg arg0, UArg arg1) {
 
             float x1,y1,z1,xg1,yg1,zg1;
 
-            calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
+            //calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,0);
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,25);
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,50);
+            calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1,75);
 
             sprintf(msg, "SD: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
             System_printf(msg);
