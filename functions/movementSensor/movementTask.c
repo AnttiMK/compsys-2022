@@ -44,8 +44,39 @@ void recognizeMove(float x, float y, float z) {
 void recognizeMove2(int movmentValue) {
 
     if (movmentValue == 3535){
-        sprintf("Portaat");
+        System_printf("Portaat\n");
+        System_flush();
     } 
+
+    else if (movmentValue == 3333) {
+        System_printf("Liike oikealle\n");
+        System_flush();
+
+    }
+
+     else if (movmentValue == 4444) {
+        System_printf("Liike vasemmalle\n");
+        System_flush();
+
+    }
+
+    else if (movmentValue == 5555) {
+        System_printf("Hissi ylös\n");
+        System_flush();
+
+    }
+
+    else if (movmentValue == 6666) {
+        System_printf("Hissi alas\n");
+        System_flush();
+
+    }
+
+    else if (movmentValue == 6464) {
+        System_printf("Portaat alas\n");
+        System_flush();
+
+    }
     
     else {
         sprintf("Ei tunnistettua liikettä");
