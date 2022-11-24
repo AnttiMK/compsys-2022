@@ -55,6 +55,76 @@ void calculateSD(float data[7][100], float *x1, float *y1, float *z1, float *xg1
     *zg1 = sqrt(SDZg / 100);
 }
 
+void movmentValue(float data[7][100], int *movment, int index, int dataIndex) {
+
+    float sumX = 0.0;
+    float sumY = 0.0;
+    float sumZ = 0.0;
+
+    int i;
+    for (i = dataIndex; i < dataIndex + 25; ++i) {
+
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+    }
+
+    sumX = sumX / 25;
+    sumY = sumY / 25;
+    sumZ = sumZ / 25;
+
+    if ((fabsf(sumX) > fabsf(sumY)) & (fabsf(sumX) > fabsf(sumZ))) {
+
+        if(sumX > 0.0) {
+            *movment += 1 * pow(10, index);
+
+            System_printf("Liike X positiivinen = Eteenpäin \n");
+            System_flush();
+
+        } else {
+            *movment += 2 * pow(10, index);
+
+            System_printf("Liike X negatiivinen = Taaksepäin \n");
+            System_flush();
+        }
+
+    }
+
+    else if (fabsf(sumY) > fabsf(sumZ)) {
+
+        if (sumY > 0.0) {
+
+            *movment += 3 * pow(10, index);
+
+            System_printf("Liike Y positiivinen = Oikealla \n");
+            System_flush();
+
+        } else {
+
+            *movment += 4 * pow(10, index);
+
+            System_printf("Liike Y negatiivinen = Vasemmalle \n");
+            System_flush();
+        }
+
+    } else {
+        if (sumZ > 0.0) {
+
+            *movment += 5 * pow(10, index);
+
+            System_printf("Liike Z positiivinen = Ylöspäin \n");
+            System_flush();
+
+        } else {
+
+            *movment += 6 * pow(10, index);
+
+            System_printf("Liike Z negatiivinen = Alaspäin \n");
+            System_flush();
+        }
+    }
+}
+
 void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg1, float *yg1, float *zg1, int index) {
     float sumX = 0.0, meanX, SDX = 0.0;
     float sumY = 0.0, meanY, SDY = 0.0;

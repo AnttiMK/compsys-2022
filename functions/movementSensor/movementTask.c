@@ -40,3 +40,15 @@ void recognizeMove(float x, float y, float z) {
     }
 
 }
+
+void recognizeMove2(int movmentValue) {
+
+    if (movmentValue == 3535){
+        sprintf("Portaat");
+    } 
+    
+    else {
+        sprintf("Ei tunnistettua liikettä");
+    }
+
+}

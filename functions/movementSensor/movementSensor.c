@@ -90,6 +90,7 @@ static void movementTask(UArg arg0, UArg arg1) {
     collectionState = STANDBY;
 
     char msg[200];
+    int movment;
 
     // Loop forever
     while (1) {
@@ -119,6 +120,34 @@ static void movementTask(UArg arg0, UArg arg1) {
             I2C_close(i2cMPU);
             collectionState = STANDBY;
 
+            movment = 0;
+
+            /*
+            Idea, prosessoida dataa 25kpl kokoisissa ikkunoissa,
+            tarkistaa millä akselilla on tapahtunut eniten muutosta ikkunan sisällä ja lisää sen liike summaan.
+            tällä tavalla voidaan tunnistaa liikkeitä yhdestä int arvosta.
+
+            Esim tehdään portaat --> ylös oikealle ylös oikealla 
+             - ensimmäisessä ikkunussa Z arvo muuttuu eniten ja se on positiivinen joten liike + 5 * 10 ^0, liike = 5
+             - toisessa ikkunussa Y arvo muuttuu eniten ja se on positiivinen joten liike + 3 * 10 ^ 1, jolloin liike = 35
+             - kolmannessa ikkunussa Z arvo muuttuu eniten ja se on positiivinen joten liike + 5 * 10 ^2, jolloin liike = 535
+             - neljännessä ikkunussa Y arvo muuttuu eniten ja se on positiivinen joten liike + 3 * 10 ^3, jolloin liike = 3535
+
+            nyt movement = 3535 joka tunnistetaan portaaksi
+
+            portaat alaspäin olisi taas = 6464, joka voitaisiin tunnistaa liikkeeksi portaat alaspäin
+            
+            */
+
+
+            movmentValue(MovementSensor_sensorData, &movment, 0, 0);
+            movmentValue(MovementSensor_sensorData, &movment, 1, 25); 
+            movmentValue(MovementSensor_sensorData, &movment, 2, 50); 
+            movmentValue(MovementSensor_sensorData, &movment, 3, 75);
+            recognizeMove2(movment);
+
+
+
 //            int j;
 //            for (j = 0; j < 100; ++j) {
 //                sprintf(msg, "%f,%f,%f,%f,%f,%f,%f\n", MovementSensor_sensorData[0][j], MovementSensor_sensorData[1][j], MovementSensor_sensorData[2][j], MovementSensor_sensorData[3][j], MovementSensor_sensorData[4][j], MovementSensor_sensorData[5][j], MovementSensor_sensorData[6][j]);
@@ -128,7 +157,7 @@ static void movementTask(UArg arg0, UArg arg1) {
 //                memset(msg, 0, 60);
 //            }
 
-            float x1, y1, z1, xg1, yg1, zg1;
+            /* float x1, y1, z1, xg1, yg1, zg1;
             float sum_x = 0, sum_y = 0, sum_z = 0;
 
             //calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
@@ -184,6 +213,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
+            */
 
         }
 
