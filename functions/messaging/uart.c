@@ -18,9 +18,13 @@
 #include <ti/sysbios/knl/Task.h>
 #include <ti/drivers/UART.h>
 #include "Board.h"
+
 #include <functions/movementSensor/movementSensor.h>
 #include <functions/ambientLightSensor/ambientLight.h>
 #include "functions/buzzer/buzzer.h"
+#include <util/math.h>
+
+#include <driverlib/aon_batmon.h>
 
 #define STACKSIZE 1024
 Char uartTaskStack[STACKSIZE];
@@ -117,6 +121,16 @@ static void uartTask(UArg arg0, UArg arg1) {
             sendMessage("id:2420,session:start");
             sendMessage("id:2420,light:%.4f,session:end", AmbientLight_amount);
         }
+
+        uint32_t batt_reg = HWREG(AON_BATMON_BASE + AON_BATMON_O_BAT);
+        int batt_int = (batt_reg & 896) >> 8;
+        uint8_t batt_frac = (batt_reg & 127);
+        double batt_value = batt_int + binFracToDec(batt_frac);
+
+        sendMessage("battery: %f", batt_value);
+
+
+
 
         // Vastaanotetaan 1 merkki kerrallaan input-muuttujaan
 //        UART_read(uart, &input, 29);

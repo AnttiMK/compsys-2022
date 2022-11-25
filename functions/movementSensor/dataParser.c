@@ -7,11 +7,15 @@
 
 #include <math.h>
 #include <stdio.h>
+#include <string.h>
+#include <xdc/std.h>
+#include <xdc/runtime/System.h>
 #include <functions/movementSensor/dataParser.h>
 
 // CREDITS: https://www.programiz.com/c-programming/examples/standard-deviation
 
-void calculateSD(float data[7][100], float *x1, float *y1, float *z1, float *xg1, float *yg1, float *zg1) {
+void calculateSD(float data[7][100], float *x1, float *y1, float *z1,
+                 float *xg1, float *yg1, float *zg1) {
 
     float sumX = 0.0, meanX, SDX = 0.0;
     float sumY = 0.0, meanY, SDY = 0.0;
@@ -66,16 +70,31 @@ void movmentValue(float data[7][100], int *movment, int index, int dataIndex) {
 
         sumX += data[1][i];
         sumY += data[2][i];
-        sumZ += data[3][i];
+        sumZ += data[3][i] - 1;
     }
 
     sumX = sumX / 25;
     sumY = sumY / 25;
     sumZ = sumZ / 25;
 
-    if ((fabsf(sumX) > fabsf(sumY)) & (fabsf(sumX) > fabsf(sumZ))) {
+    char msg[30];
+    sprintf(msg, "SumX: %f\n", sumX);
+    System_printf(msg);
+    System_flush();
+    memset(msg, 0, 30);
 
-        if(sumX > 0.0) {
+    sprintf(msg, "SumY: %f\n", sumY);
+    System_printf(msg);
+    System_flush();
+    memset(msg, 0, 30);
+
+    sprintf(msg, "SumZ: %f\n", sumZ);
+    System_printf(msg);
+    System_flush();
+    memset(msg, 0, 30);
+
+    if (fabsf(sumX) > fabsf(sumY) && fabsf(sumX) > fabsf(sumZ)) {
+        if (sumX > 0.0) {
             *movment += 1 * pow(10, index);
 
             System_printf("Liike X positiivinen = Eteenpäin \n");
@@ -87,11 +106,7 @@ void movmentValue(float data[7][100], int *movment, int index, int dataIndex) {
             System_printf("Liike X negatiivinen = Taaksepäin \n");
             System_flush();
         }
-
-    }
-
-    else if (fabsf(sumY) > fabsf(sumZ)) {
-
+    } else if (fabsf(sumY) > fabsf(sumZ)) {
         if (sumY > 0.0) {
 
             *movment += 3 * pow(10, index);
@@ -106,26 +121,24 @@ void movmentValue(float data[7][100], int *movment, int index, int dataIndex) {
             System_printf("Liike Y negatiivinen = Vasemmalle \n");
             System_flush();
         }
+    } else if (sumZ > 0.0) {
+
+        *movment += 5 * pow(10, index);
+
+        System_printf("Liike Z positiivinen = Ylöspäin \n");
+        System_flush();
 
     } else {
-        if (sumZ > 0.0) {
 
-            *movment += 5 * pow(10, index);
+        *movment += 6 * pow(10, index);
 
-            System_printf("Liike Z positiivinen = Ylöspäin \n");
-            System_flush();
-
-        } else {
-
-            *movment += 6 * pow(10, index);
-
-            System_printf("Liike Z negatiivinen = Alaspäin \n");
-            System_flush();
-        }
+        System_printf("Liike Z negatiivinen = Alaspäin \n");
+        System_flush();
     }
 }
 
-void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg1, float *yg1, float *zg1, int index) {
+void calculateSD2(float data[7][100], float *x1, float *y1, float *z1,
+                  float *xg1, float *yg1, float *zg1, int index) {
     float sumX = 0.0, meanX, SDX = 0.0;
     float sumY = 0.0, meanY, SDY = 0.0;
     float sumZ = 0.0, meanZ, SDZ = 0.0;
@@ -171,7 +184,8 @@ void calculateSD2(float data[7][100], float *x1, float *y1, float *z1, float *xg
 
 // CREDITS: https://www.sanfoundry.com/c-program-mean-variance-standard-deviation/
 
-void calculateVariance(float data[7][100], float *x2, float *y2, float *z2, float *xg2, float *yg2, float *zg2) {
+void calculateVariance(float data[7][100], float *x2, float *y2, float *z2,
+                       float *xg2, float *yg2, float *zg2) {
 
     float averageX, sumX = 0.0, sum1X = 0.0;
     float averageY, sumY = 0.0, sum1Y = 0.0;
@@ -196,7 +210,6 @@ void calculateVariance(float data[7][100], float *x2, float *y2, float *z2, floa
     averageXg = sumXg / 100;
     averageYg = sumYg / 100;
     averageZg = sumZg / 100;
-
 
     for (i = 0; i < 100; ++i) {
 
@@ -239,17 +252,16 @@ void movmentValue2(float data[7][100], int *movment, int index, int dataIndex) {
     viisto = fabsf(sumY - sumZ);
 
     if ((fabsf(sumX) < 0.01) && (fabsf(sumY) < 0.01) && (fabsf(sumZ) < 0.01)) // nämä rajat pitää määritellä tarkemmin
-    {
+            {
         *movment += 11 * pow(10, index);
 
         System_printf("Liikkumatta  \n");
         System_flush();
     }
-    
 
     else if ((fabsf(sumX) > fabsf(sumY)) & (fabsf(sumX) > fabsf(sumZ))) {
 
-        if(sumX > 0.0) {
+        if (sumX > 0.0) {
             *movment += 12 * pow(10, index);
 
             System_printf("Liike X positiivinen = Eteenpäin \n");
@@ -266,7 +278,7 @@ void movmentValue2(float data[7][100], int *movment, int index, int dataIndex) {
 
     else if (viisto < 2.00) { // liikuttu Y ja Z akselilla melkein yhtäpaljon
 
-        if(sumZ > 0.0 && sumY > 0.0) {
+        if (sumZ > 0.0 && sumY > 0.0) {
             *movment += 14 * pow(10, index);
 
             System_printf("Liike Koilinen \n");

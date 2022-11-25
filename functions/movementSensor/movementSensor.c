@@ -126,8 +126,8 @@ static void movementTask(UArg arg0, UArg arg1) {
 
             /*
             Idea, prosessoida dataa 25kpl kokoisissa ikkunoissa,
-            tarkistaa millä akselilla on tapahtunut eniten muutosta ikkunan sisällä ja lisää sen liike summaan.
-            tällä tavalla voidaan tunnistaa liikkeitä yhdestä int arvosta.
+            tarkistaa mill� akselilla on tapahtunut eniten muutosta ikkunan sis�ll� ja lis�� sen liike summaan.
+            t�ll� tavalla voidaan tunnistaa liikkeitä yhdestä int arvosta.
 
             Esim tehdään portaat --> ylös oikealle ylös oikealla 
              - ensimmäisessä ikkunussa Z arvo muuttuu eniten ja se on positiivinen joten liike + 5 * 10 ^0, liike = 5
@@ -142,11 +142,11 @@ static void movementTask(UArg arg0, UArg arg1) {
             */
 
 
-            movmentValue(MovementSensor_sensorData, &movment, 0, 0);
-            movmentValue(MovementSensor_sensorData, &movment, 1, 25); 
-            movmentValue(MovementSensor_sensorData, &movment, 2, 50); 
-            movmentValue(MovementSensor_sensorData, &movment, 3, 75);
-            recognizeMove2(movment);
+//            movmentValue(MovementSensor_sensorData, &movment, 0, 0);
+//            movmentValue(MovementSensor_sensorData, &movment, 1, 25);
+//            movmentValue(MovementSensor_sensorData, &movment, 2, 50);
+//            movmentValue(MovementSensor_sensorData, &movment, 3, 75);
+//            recognizeMove2(movment);
 
             /*
             Testi 2, sama idea mutta lisättynä paikallaan olo ja tilanteen jossa Z ja Y akseli muuttuu melkein yhtä paljon
@@ -168,11 +168,11 @@ static void movementTask(UArg arg0, UArg arg1) {
             jne....
             */
 
-           movmentValue(MovementSensor_sensorData, &movment2, 0, 0);
-           movmentValue(MovementSensor_sensorData, &movment2, 2, 25); 
-           movmentValue(MovementSensor_sensorData, &movment2, 4, 50); 
-           movmentValue(MovementSensor_sensorData, &movment2, 6, 75);
-           recognizeMove3(movment2);
+//           movmentValue(MovementSensor_sensorData, &movment2, 0, 0);
+//           movmentValue(MovementSensor_sensorData, &movment2, 2, 25);
+//           movmentValue(MovementSensor_sensorData, &movment2, 4, 50);
+//           movmentValue(MovementSensor_sensorData, &movment2, 6, 75);
+//           recognizeMove3(movment2);
 
 
 
@@ -185,13 +185,13 @@ static void movementTask(UArg arg0, UArg arg1) {
 //                memset(msg, 0, 60);
 //            }
 
-            /* float x1, y1, z1, xg1, yg1, zg1;
+            float x1, y1, z1, xg1, yg1, zg1;
             float sum_x = 0, sum_y = 0, sum_z = 0;
 
             //calculateSD(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1, &zg1);
             calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
                          &zg1, 0);
-            sprintf(msg, "SD1: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            sprintf(msg, "SD1: %f,%f,%f,%f,%f,%f\n", x1*100, y1*100, z1*100, xg1*100, yg1*100, zg1*100);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
@@ -200,7 +200,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             sum_z += z1;
             calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
                          &zg1, 25);
-            sprintf(msg, "SD2: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            sprintf(msg, "SD2: %f,%f,%f,%f,%f,%f\n", x1*100, y1*100, z1*100, xg1*100, yg1*100, zg1*100);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
@@ -209,7 +209,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             sum_z += z1;
             calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
                          &zg1, 50);
-            sprintf(msg, "SD3: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            sprintf(msg, "SD3: %f,%f,%f,%f,%f,%f\n", x1*100, y1*100, z1*100, xg1*100, yg1*100, zg1*100);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
@@ -219,7 +219,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             calculateSD2(MovementSensor_sensorData, &x1, &y1, &z1, &xg1, &yg1,
                          &zg1, 75);
 
-            sprintf(msg, "SD4: %f,%f,%f,%f,%f,%f\n", x1, y1, z1, xg1, yg1, zg1);
+            sprintf(msg, "SD4: %f,%f,%f,%f,%f,%f\n", x1*100, y1*100, z1*100, xg1*100, yg1*100, zg1*100);
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
@@ -231,7 +231,12 @@ static void movementTask(UArg arg0, UArg arg1) {
             sum_y = sum_y/4;
             sum_z = sum_z/4;
 
-            recognizeMove(sum_x, sum_y, sum_z);
+            sprintf(msg, "SD4: %f,%f,%f,%f,%f,%f\n", sum_x*100, sum_y*100, sum_z*100, xg1*100, yg1*100, zg1*100);
+                        System_printf(msg);
+                        System_flush();
+                        memset(msg, 0, 60);
+
+
 
             float x2, y2, z2, xg2, yg2, zg2;
             calculateVariance(MovementSensor_sensorData, &x2, &y2, &z2, &xg2,
@@ -241,7 +246,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             System_printf(msg);
             System_flush();
             memset(msg, 0, 60);
-            */
+            recognizeMove(x2, y2, z2);
 
         }
 

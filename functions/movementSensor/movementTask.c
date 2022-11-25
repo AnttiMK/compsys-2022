@@ -13,28 +13,16 @@
 
 void recognizeMove(float x, float y, float z) {
 
-    if ((fabsf(x * 100 - 3) < 1.5) & (fabsf(y * 100 - 3) < 1.5)
-            & (z * 100 > 85)) {
-        System_printf("Nosto ylÃ¶s liike");
+    if ((fabsf(x * 100 - 3) < 1.5) && (fabsf(y * 100 - 3) < 1.5) && (z * 100 > 85)) {
+        System_printf("Nosto ylös");
         System_flush();
-    }
-
-    if ((x * 100 < 9) && (z * 100 < 9) && (y * 100 > 20)) {
+    } else if ((x * 100 < 9) && (z * 100 < 9) && (y * 100 > 20)) {
         System_printf("Liikutus sivuttain poydalla\n");
         System_flush();
-    }
-
-    if ((x * 100 < 10) && (fabsf(y * 100 - 11) < 3) && (fabsf(z * 100 - 11) < 3)) {
-        System_printf("x: %f\n", x * 100);
-        System_flush();
-        System_printf("abs y: %f\n", fabsf(y * 100 - 11));
-                System_flush();
-        System_printf("abs z: %f\n", fabsf(z * 100 - 11));
-                System_flush();
+    } else if (x * 100 < 1 && y * 100 > 3 && z * 100 > 3) {
         System_printf("Porras_liike\n");
         System_flush();
-    }
-    else {
+    } else {
         System_printf("Ei tunnistettua liiketta\n");
         System_flush();
     }
