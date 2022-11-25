@@ -79,7 +79,40 @@ void recognizeMove2(int movmentValue) {
     }
     
     else {
-        sprintf("Ei tunnistettua liikettä");
+        System_printf("2 hyppyä\n");
+        System_flush();
+    }
+
+}
+
+void recognizeMove3(int movmentValue) {
+
+    if (movmentValue == 20202020){
+        System_printf("Hissi ylös\n");
+        System_flush();
+    } 
+
+    else if (movmentValue == 21212121) {
+        System_printf("Hissi alas\n");
+        System_flush();
+
+    }
+
+     else if (movmentValue == 14151716 || movmentValue == 16141517  || movmentValue == 17161415  || movmentValue == 15171614) {
+        System_printf("Ympyrä tai salmiakki...\n");
+        System_flush();
+
+    }
+
+    else if (movmentValue == 16141614) {
+        System_printf("2 hyppyä\n");
+        System_flush();
+
+    }
+  
+    else {
+        System_printf("Ei tunnistettua liikettä\n");
+        System_flush();
     }
 
 }

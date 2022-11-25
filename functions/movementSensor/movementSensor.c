@@ -91,6 +91,7 @@ static void movementTask(UArg arg0, UArg arg1) {
 
     char msg[200];
     int movment;
+    int movment2;
 
     // Loop forever
     while (1) {
@@ -121,6 +122,7 @@ static void movementTask(UArg arg0, UArg arg1) {
             collectionState = STANDBY;
 
             movment = 0;
+            movment2 = 0;
 
             /*
             Idea, prosessoida dataa 25kpl kokoisissa ikkunoissa,
@@ -145,6 +147,32 @@ static void movementTask(UArg arg0, UArg arg1) {
             movmentValue(MovementSensor_sensorData, &movment, 2, 50); 
             movmentValue(MovementSensor_sensorData, &movment, 3, 75);
             recognizeMove2(movment);
+
+            /*
+            Testi 2, sama idea mutta lisättynä paikallaan olo ja tilanteen jossa Z ja Y akseli muuttuu melkein yhtä paljon
+            Nyt eri ikkunassa olevia liikkeitä voi olla 6 sijasta 11 eli potenssia pitää nostaa aina kahdella
+            Esimerkiksi:
+              - 1. ikkunussa Z arvo muuttuu eniten eikä Y arvo muutu tarpeeksi, ja Z on positiivinen joten liike + 20 * 10 ^0, liike = 20
+              - 2. ikkunussa Z ja Y muuttuu lähens yhtä paljon ja molemmat on positiivinen joten liike + 14 * 10 ^2, liike = 1420
+              - 3. ikkuna liike + arvo * 10 ^ 4 = XX1420
+              - 4. ikkuna liiker + arvo * 10 ^6 = YYXX1420
+
+            Nyt eri liikkeitä olisi esim: 
+            Portaat (oikein päin) = 18201820
+            Hissi ylös = 20202020
+            Hissi alas = 21212121
+            Ympyrä (neljä eri tapaa riippuen mistä suunnasta alottaako 1 i -1 vai -i )
+            14151716 tai 16141517 tai 17161415 tai 15171614
+
+            2 hyppyä /\/\ olisi = 16141614
+            jne....
+            */
+
+           movmentValue(MovementSensor_sensorData, &movment2, 0, 0);
+           movmentValue(MovementSensor_sensorData, &movment2, 2, 25); 
+           movmentValue(MovementSensor_sensorData, &movment2, 4, 50); 
+           movmentValue(MovementSensor_sensorData, &movment2, 6, 75);
+           recognizeMove3(movment2);
 
 
 

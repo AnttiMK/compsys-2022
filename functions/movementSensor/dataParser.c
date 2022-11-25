@@ -216,3 +216,115 @@ void calculateVariance(float data[7][100], float *x2, float *y2, float *z2, floa
     *zg2 = sum1Zg / 100;
 
 }
+
+void movmentValue2(float data[7][100], int *movment, int index, int dataIndex) {
+
+    float sumX = 0.0;
+    float sumY = 0.0;
+    float sumZ = 0.0;
+
+    float viisto = 0.0;
+
+    int i;
+    for (i = dataIndex; i < dataIndex + 25; ++i) {
+
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+    }
+
+    sumX = sumX / 25;
+    sumY = sumY / 25;
+    sumZ = sumZ / 25;
+    viisto = fabsf(sumY - sumZ);
+
+    if ((fabsf(sumX) < 0.01) && (fabsf(sumY) < 0.01) && (fabsf(sumZ) < 0.01)) // nämä rajat pitää määritellä tarkemmin
+    {
+        *movment += 11 * pow(10, index);
+
+        System_printf("Liikkumatta  \n");
+        System_flush();
+    }
+    
+
+    else if ((fabsf(sumX) > fabsf(sumY)) & (fabsf(sumX) > fabsf(sumZ))) {
+
+        if(sumX > 0.0) {
+            *movment += 12 * pow(10, index);
+
+            System_printf("Liike X positiivinen = Eteenpäin \n");
+            System_flush();
+
+        } else {
+            *movment += 13 * pow(10, index);
+
+            System_printf("Liike X negatiivinen = Taaksepäin \n");
+            System_flush();
+        }
+
+    }
+
+    else if (viisto < 2.00) { // liikuttu Y ja Z akselilla melkein yhtäpaljon
+
+        if(sumZ > 0.0 && sumY > 0.0) {
+            *movment += 14 * pow(10, index);
+
+            System_printf("Liike Koilinen \n");
+            System_flush();
+
+        } else if (sumZ > 0.0 && sumY < 0.0) {
+            *movment += 15 * pow(10, index);
+
+            System_printf("Liike Luode \n");
+            System_flush();
+        }
+
+        else if (sumZ < 0.0 && sumY > 0.0) {
+            *movment += 16 * pow(10, index);
+
+            System_printf("Liike Kaakko \n");
+            System_flush();
+        } else {
+            *movment += 17 * pow(10, index);
+
+            System_printf("Liike Lounas Hehe \n");
+            System_flush();
+
+        }
+
+    }
+
+    else if (fabsf(sumY) > fabsf(sumZ)) {
+
+        if (sumY > 0.0) {
+
+            *movment += 18 * pow(10, index);
+
+            System_printf("Liike Y positiivinen = Oikealla \n");
+            System_flush();
+
+        } else {
+
+            *movment += 19 * pow(10, index);
+
+            System_printf("Liike Y negatiivinen = Vasemmalle \n");
+            System_flush();
+        }
+
+    } else {
+        if (sumZ > 0.0) {
+
+            *movment += 20 * pow(10, index);
+
+            System_printf("Liike Z positiivinen = Ylöspäin \n");
+            System_flush();
+
+        } else {
+
+            *movment += 21 * pow(10, index);
+
+            System_printf("Liike Z negatiivinen = Alaspäin \n");
+            System_flush();
+        }
+    }
+}

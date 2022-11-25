@@ -13,5 +13,6 @@
 
 void recognizeMove(float x, float y, float z);
 void recognizeMove2(int movmentValue);
+void recognizeMove3(int movmentValue);
 
 #endif
