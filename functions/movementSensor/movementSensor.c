@@ -299,11 +299,11 @@ static void movementTask2(UArg arg0, UArg arg1) {
    
 
     char msg[200];
-    int i, j;
+    int i, j, count;
     float x1, x2, x3, y1, y2, y3, z1, z2, z3;
     float fAvgX, fAvgY, fAvgZ;
-    x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.000001; // minimaalinen arvo ettei tuu nollalla jakao
-    i = j =  0;
+    x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.0;
+    i = j = count =  0;
 
     // Loop forever
     while (1) {
@@ -354,20 +354,24 @@ static void movementTask2(UArg arg0, UArg arg1) {
         
         else {
 
-            if (i > 0) { // jos dataa on kerätty analysoidaan se
-                float varX, varY, varZ;
-                calculateVariance2(MovementSensor_sensorData2, &varX, &varY, &varY, i);
-                recognizeMove(varX, varY, varZ);
-            }
-            x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.000001; // nollataan arvot
-            i = j = 0;
+            if( count > 3) { // kerää ainakin 3 arvoa ennen nollausta
+                if (i > 0) { // jos dataa on kerätty analysoidaan se
+                    float varX, varY, varZ;
+                    calculateVariance2(MovementSensor_sensorData2, &varX, &varY, &varY, i);
+                    recognizeMove(varX, varY, varZ);
+                }
+                x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.0; // nollataan arvot
+                i = j = count = 0;
 
-            playSong(beep1());
-            UART_notifyMpuDataReady();
-            I2C_close(i2cMPU);
-            /* Sleep 100ms */
-            Task_sleep(50000 / Clock_tickPeriod);  // mennään nukkumaan Onko liian lyhyt nukkumis aika ?? 
+                playSong(beep1());
+                UART_notifyMpuDataReady();
+                I2C_close(i2cMPU);
+                /* Sleep 100ms */
+                Task_sleep(50000 / Clock_tickPeriod);  // mennään nukkumaan Onko liian lyhyt nukkumis aika ?? 
+            }   
         }
+
+        count ++;
     }
 }
 
