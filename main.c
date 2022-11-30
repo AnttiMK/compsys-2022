@@ -32,15 +32,20 @@ Int main(void) {
 
     Board_initI2C();
     Board_initUART();
+
+    // Registers Uart and its Tasks
     UART_registerTask();
+
+    // Registers Movment sensor and its Tasks
     MovementSensor_registerTask();
 
+    // Registers Light sensor and its Tasks
     AmbientLight_registerTask();
 
-    // Rekisteröidään painonapit ja niiden taskit
+    // Registers buttons and their Tasks
     Buttons_registerTasks();
 
-    // Rekisteröidään summeri
+    // Registers Buzzer and its Tasks
     //Buzzer_register();
 
 

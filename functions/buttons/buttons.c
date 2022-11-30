@@ -22,6 +22,7 @@
 #include <functions/movementSensor/movementSensor.h>
 #include "functions/messaging/uart.h"
 
+// Determines common stack size for buttons
 #define STACKSIZE 512
 Char auxBtnTaskStack[STACKSIZE];
 Char pwrBtnTaskStack[STACKSIZE];
@@ -41,6 +42,7 @@ PIN_Config pwrBtnWakeupConfig[] = {
 Board_BUTTON1 | PIN_INPUT_EN | PIN_PULLUP | PINCC26XX_WAKEUP_NEGEDGE,
                                     PIN_TERMINATE };
 
+// Determines Pressed state to calculate increment
 enum state {
     OPEN = 1, PRESSED
 };
@@ -103,11 +105,14 @@ static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
 
  */
 
+// Handler function for auxButton
+
 static void auxButtonTask(UArg arg0, UArg arg1) {
-    int increment = 0;
+    int increment = 0;  // Adding increment value as long as buttons is pressed
     while (1) {
-        if (menuState == 1) {
-            if (auxButtonState == PRESSED) {
+        // Checks if menu state is active
+        if (menuState == 1) { 
+            if (auxButtonState == PRESSED) { 
                 increment++;
             }
             else {
@@ -130,7 +135,7 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
                     menuState = 1;
                 }
                 else if (increment > 0) {
-                    sendMessage("id:2420,EAT:1");
+                    sendMessage("id:2420,EAT:1");  // Sends EAT command to backend
                 }
                 increment = 0;
             }
@@ -139,6 +144,8 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
         Task_sleep(100000 / Clock_tickPeriod);
     }
 }
+
+// Handler function for pwrButton
 
 static void pwrButtonTask(UArg arg0, UArg arg1) {
     int increment = 0;
@@ -193,18 +200,23 @@ static void pwrButtonTask(UArg arg0, UArg arg1) {
 
  */
 
+
+// Register buttons Tasks
+
 static void registerTasks() {
-    Task_Params auxBtnTaskParams;
+    Task_Params auxBtnTaskParams; 
     Task_Params_init(&auxBtnTaskParams);
-    auxBtnTaskParams.stackSize = STACKSIZE;
-    auxBtnTaskParams.stack = &auxBtnTaskStack;
-    auxBtnTaskParams.priority = 2;
+    auxBtnTaskParams.stackSize = STACKSIZE; // Determines stack size for auxButton
+    auxBtnTaskParams.stack = &auxBtnTaskStack; 
+    auxBtnTaskParams.priority = 2; // Determines task priority auxButton
 
     Task_Params pwrBtnTaskParams;
     Task_Params_init(&pwrBtnTaskParams);
     pwrBtnTaskParams.stackSize = STACKSIZE;
     pwrBtnTaskParams.stack = &pwrBtnTaskStack;
     pwrBtnTaskParams.priority = 2;
+
+    // Creates Task
 
     Task_Handle auxBtnTaskHandle = Task_create(auxButtonTask, &auxBtnTaskParams,
     NULL);
@@ -218,6 +230,8 @@ static void registerTasks() {
         System_abort("Power button task create failed!");
     }
 }
+
+// Setup all sub functions --> Called in main loop
 
 void Buttons_registerTasks() {
     auxBtnHandle = PIN_open(&auxBtnState, auxBtnConfig);

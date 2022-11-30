@@ -31,8 +31,9 @@ Char uartTaskStack[STACKSIZE];
 
 static UART_Handle uart;
 static char writeBuffer[90];
-static uint8_t uartBuffer[80]; // Vastaanottopuskuri
+static uint8_t uartBuffer[80]; // Reception buffer
 
+// Determines data states
 enum dataState {
     READY, NOT_READY
 };
@@ -46,6 +47,8 @@ bool startsWith(const char *a, const char *b) {
 }
 
 static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
+
+    //Checking if ID matches device
     if (startsWith(rxBuf, "2420")) {
 
         //if BEEP then beep2
@@ -54,10 +57,11 @@ static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
         }
     }
 
-    // Käsittelijän viimeisenä asiana siirrytään odottamaan uutta keskeytystä..
+    // Kï¿½sittelijï¿½n viimeisenï¿½ asiana siirrytï¿½ï¿½n odottamaan uutta keskeytystï¿½..
     UART_read(uart, rxBuf, 80);
 }
 
+// Sends messages to backend
 void sendMessage(char msg[], ...) {
     va_list argptr;
     va_start(argptr, msg);
@@ -66,8 +70,9 @@ void sendMessage(char msg[], ...) {
     UART_write(uart, writeBuffer, strlen(writeBuffer) + 1);
 }
 
+// Creates UART task 
 static void uartTask(UArg arg0, UArg arg1) {
-    // JTKJ: Tehtävä 4. Lisää UARTin alustus: 9600,8n1
+    // JTKJ: Tehtï¿½vï¿½ 4. Lisï¿½ï¿½ UARTin alustus: 9600,8n1
     // JTKJ: Exercise 4. Setup here UART connection as 9600,8n1
     // UART-kirjaston asetukset
 
@@ -75,14 +80,14 @@ static void uartTask(UArg arg0, UArg arg1) {
 //    char ping_msg[20];
     UART_Params uartParams;
 
-    // Alustetaan sarjaliikenne
+    // Initializing serial traffic
     UART_Params_init(&uartParams);
     uartParams.writeDataMode = UART_DATA_TEXT;
     uartParams.readDataMode = UART_DATA_TEXT;
     uartParams.readEcho = UART_ECHO_OFF;
     uartParams.readMode = UART_MODE_CALLBACK;
     uartParams.readCallback = &uartHandler;
-    uartParams.baudRate = 9600; // nopeus 9600baud
+    uartParams.baudRate = 9600; // Speed 9600baud
     uartParams.dataLength = UART_LEN_8; // 8
     uartParams.parityType = UART_PAR_NONE; // n
     uartParams.stopBits = UART_STOP_ONE; // 1
@@ -103,6 +108,7 @@ static void uartTask(UArg arg0, UArg arg1) {
 
             int i;
             for (i = 0; i < 100; ++i) {
+                // Sends movement data to backend
                 sendMessage(
                         "id:2420,time:%.0f,ax:%.4f,ay:%.4f,az:%.4f,gx:%.4f,gy:%.4f,gz:%.4f",
                         MovementSensor_sensorData[0][i] * 1000,
@@ -115,10 +121,11 @@ static void uartTask(UArg arg0, UArg arg1) {
             }
             sendMessage("id:2420,session:end");
         }
-
+        
         if (ambientDataState == READY) {
             ambientDataState = NOT_READY;
             sendMessage("id:2420,session:start");
+            // Sends lightness data to backend
             sendMessage("id:2420,light:%.4f,session:end", AmbientLight_amount);
         }
 
@@ -126,7 +133,7 @@ static void uartTask(UArg arg0, UArg arg1) {
         int batt_int = (batt_reg & 896) >> 8;
         uint8_t batt_frac = (batt_reg & 127);
         double batt_value = batt_int + binFracToDec(batt_frac);
-
+        // Sends battery state to backend
         sendMessage("battery: %f", batt_value);
 
 
@@ -134,12 +141,12 @@ static void uartTask(UArg arg0, UArg arg1) {
 
         // Vastaanotetaan 1 merkki kerrallaan input-muuttujaan
 //        UART_read(uart, &input, 29);
-//        // Lähetetään merkkijono takaisin
+//        // Lï¿½hetetï¿½ï¿½n merkkijono takaisin
 //        sprintf(echo_msg, "Received: %c\n", input);
 //        System_printf(echo_msg);
 //        System_flush();
 
-        // JTKJ: Tehtävä 4. Lähetä sama merkkijono UARTilla
+        // JTKJ: Tehtï¿½vï¿½ 4. Lï¿½hetï¿½ sama merkkijono UARTilla
         // JTKJ: Exercise 4. Send the same sensor data string with UART
 //        sprintf(ping_msg, "id:420,ping");
 //        UART_write(uart, ping_msg, strlen(ping_msg) + 1);
@@ -151,6 +158,8 @@ static void uartTask(UArg arg0, UArg arg1) {
         Task_sleep(250000 / Clock_tickPeriod);
     }
 }
+
+// Setup all sub functions --> Called in main loop
 
 void UART_registerTask() {
     Task_Handle uartTaskHandle;

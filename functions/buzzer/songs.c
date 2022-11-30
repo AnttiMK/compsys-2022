@@ -1,11 +1,14 @@
 #include <functions/buzzer/songs.h>
 
-static Song nokia_song;
+static Song nokia_song; 
+
+// Determines notes and durations
 static int nokia_melody[] = {NOTE_E5, 8, NOTE_D5, 8, NOTE_FS4, 4, NOTE_GS4, 4,
     NOTE_CS5, 8, NOTE_B4, 8, NOTE_D4, 4, NOTE_E4, 4,
     NOTE_B4, 8, NOTE_A4, 8, NOTE_CS4, 4, NOTE_E4, 4,
-    NOTE_A4, 2, -1};
+    NOTE_A4, 2, -1};  
 
+// Creates Song Structure and return its memory address
 Song *nokia() {
     nokia_song.tempo = 180;
     nokia_song.melody = nokia_melody;

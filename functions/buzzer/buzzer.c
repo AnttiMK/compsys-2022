@@ -172,6 +172,8 @@ static void buzzerTask(UArg arg0, UArg arg1) {
  * Gracefully borrowed from https://github.com/robsoncouto/arduino-songs/
  * and adapted to SensorTag
  */
+
+// Takes Song strutures as input 
 void playSong(Song *song) {
     int wholenote = (60000 * 4) / song->tempo;
     int divider = 0, noteDuration = 0;
@@ -198,6 +200,8 @@ void playSong(Song *song) {
     } while (song->melody[thisNote] != -1);
 }
 
+// Registers Buzzer Task
+
 static void registerTask() {
     Task_Params buzzerTaskParams;
     Char buzzerTaskStack[1024];
@@ -212,6 +216,8 @@ static void registerTask() {
         System_abort("Buzzer task create failed!");
     }
 }
+
+// Setup all sub functions --> Called in main loop
 
 void Buzzer_register() {
     buzzerHandle = PIN_open(&buzzerState, buzzerConfig);
