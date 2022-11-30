@@ -348,7 +348,7 @@ static void movementTask2(UArg arg0, UArg arg1) {
                 recognizeMove(varX, varY, varZ);
             }
             x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.000001; // nollataan arvot
-            i = 0;
+            i = j = 0;
 
             playSong(beep1());
             UART_notifyMpuDataReady();
