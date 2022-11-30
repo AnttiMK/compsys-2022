@@ -25,6 +25,9 @@
 #include <functions/buzzer/buzzer.h>
 #include <functions/messaging/uart.h>
 
+#include <math.h>
+#define PI 3.141592654
+
 #define STACKSIZE 2048
 static Char movementTaskStack[STACKSIZE];
 enum mpuState collectionState = INITIALIZING;
@@ -326,6 +329,15 @@ static void movementTask2(UArg arg0, UArg arg1) {
             j = 0;
 
         }
+
+        double x_angle = (atan(ax/(sqrt(pow(ay,2) + pow(az,2)))) * 180) / PI;
+        double y_angle = (atan(ay/(sqrt(pow(ax,2) + pow(az,2)))) * 180) / PI;
+        double z_angle = (atan(az/(sqrt(pow(ax,2) + pow(ay,2)))) * 180) / PI;
+
+        sprintf(msg, "X : %f Y: %f Z: %f\n", x_angle, y_angle, z_angle);
+        System_printf(msg);
+        System_flush();
+        memset(msg, 0, 60);
         
         fAvgX = (x1 + x2 + x3) / 3; // liukuva keskiarvo 3 edelliselle kerätylle arvolle
         fAvgY = (y1 + y2 + y3) / 3;
