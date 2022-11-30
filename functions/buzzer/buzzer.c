@@ -43,6 +43,7 @@
 */
 
 #include <functions/buzzer/buzzer.h>
+#include <stdbool.h>
 
 // TI RTOS drivers
 #include <ti/sysbios/knl/Task.h>
@@ -66,12 +67,18 @@
 *  Local variables
 * ------------------------------------------------------------------------------
 */
+
+static Char buzzerTaskStack[1024];
 static PIN_Handle buzzerHandle;
 static PIN_State buzzerState;
 static PIN_Config buzzerConfig[] = {
         Board_BUZZER | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL
                 | PIN_DRVSTR_MAX,
         PIN_TERMINATE };
+
+static bool mustBeep = false;
+static Song toBeep;
+
 
 /* -----------------------------------------------------------------------------
 *  Public Functions
@@ -162,19 +169,17 @@ void buzzerClose(void)
     Power_releaseConstraint(PowerCC26XX_SB_DISALLOW);
 }
 
-static void buzzerTask(UArg arg0, UArg arg1) {
-    while (1) {
-        Task_sleep(100000 / Clock_tickPeriod);
-    };
-}
-
 /*
  * Gracefully borrowed from https://github.com/robsoncouto/arduino-songs/
- * and adapted to SensorTag
+ * and adapted to our use case
  */
+<<<<<<< Updated upstream
 
 // Takes Song strutures as input 
 void playSong(Song *song) {
+=======
+void Buzzer_playSong(Song *song) {
+>>>>>>> Stashed changes
     int wholenote = (60000 * 4) / song->tempo;
     int divider = 0, noteDuration = 0;
 
@@ -200,11 +205,26 @@ void playSong(Song *song) {
     } while (song->melody[thisNote] != -1);
 }
 
+<<<<<<< Updated upstream
 // Registers Buzzer Task
+=======
+void Buzzer_mustBeep(Song *beep) {
+    mustBeep = true;
+    toBeep = *beep;
+}
+
+static void buzzerTask(UArg arg0, UArg arg1) {
+    while (1) {
+        if (mustBeep == true) {
+            Buzzer_playSong(&toBeep);
+        }
+        Task_sleep(100000 / Clock_tickPeriod);
+    };
+}
+>>>>>>> Stashed changes
 
 static void registerTask() {
     Task_Params buzzerTaskParams;
-    Char buzzerTaskStack[1024];
 
     Task_Params_init(&buzzerTaskParams);
     buzzerTaskParams.stackSize = 1024;

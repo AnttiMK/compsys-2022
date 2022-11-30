@@ -11,6 +11,8 @@
 #include <ti/sysbios/knl/Task.h>
 #include <functions/messaging/wireless.h>
 
+static Char commTaskStack[1024];
+
 void commTaskFxn(UArg arg0, UArg arg1) {
 
    char payload[16]; // viestipuskuri
@@ -47,7 +49,6 @@ void Wireless_init() {
     Init6LoWPAN();
 
     Task_Params commTaskParams;
-    Char commTaskStack[1024];
 
     Task_Params_init(&commTaskParams);
     commTaskParams.stackSize = 1024;

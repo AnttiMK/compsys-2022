@@ -63,8 +63,7 @@ static void auxButtonFxn(PIN_Handle handle, PIN_Id pinId) {
         pinValue = !pinValue;
         PIN_setOutputValue(ledHandle, Board_LED1, pinValue);
         auxButtonState = PRESSED;
-    }
-    else {
+    } else {
         auxButtonState = OPEN;
     }
 }
@@ -72,8 +71,7 @@ static void auxButtonFxn(PIN_Handle handle, PIN_Id pinId) {
 static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     if (PINCC26XX_getInputValue(pinId) == 0) {
         pwrButtonState = PRESSED;
-    }
-    else {
+    } else {
         pwrButtonState = OPEN;
     }
 }
@@ -114,28 +112,28 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
         if (menuState == 1) { 
             if (auxButtonState == PRESSED) { 
                 increment++;
-            }
-            else {
+            } else {
                 if (increment > 10) {
                     menuState = 0;
-                }
-                else if (increment > 0) {
-                    playSong(mario());
+                } else if (increment > 0) {
+                    Buzzer_playSong(mario());
                 }
                 increment = 0;
             }
-        }
-        else {
+        } else {
             if (auxButtonState == PRESSED) {
                 increment++;
-
-            }
-            else {
+            } else {
                 if (increment > 10) {
                     menuState = 1;
+<<<<<<< Updated upstream
                 }
                 else if (increment > 0) {
                     sendMessage("id:2420,EAT:1");  // Sends EAT command to backend
+=======
+                } else if (increment > 0) {
+                    sendMessage("id:2420,EAT:1");
+>>>>>>> Stashed changes
                 }
                 increment = 0;
             }
@@ -152,17 +150,15 @@ static void pwrButtonTask(UArg arg0, UArg arg1) {
     while (1) {
         if (pwrButtonState == PRESSED) {
             increment++;
-
-        }
-        else {
-            if (increment > 1) {
+        } else {
+            if (increment > 1 && increment < 30) {
                 increment = 0;
                 MovementSensor_collectData();
             }
 
-            if (increment > 30) {
+            if (increment >= 30) {
                 increment = 0;
-                playSong(nokia());
+                Buzzer_playSong(nokia());
                 PIN_close(pwrBtnHandle);
                 PINCC26XX_setWakeup(pwrBtnWakeupConfig);
                 Power_shutdown(NULL, 0);
@@ -170,7 +166,7 @@ static void pwrButtonTask(UArg arg0, UArg arg1) {
 
             if (menuState == 1 && increment > 0 && increment < 30) {
                 increment = 0;
-                playSong(tkn());
+                Buzzer_playSong(tkn());
             }
         }
 

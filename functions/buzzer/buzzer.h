@@ -54,6 +54,10 @@
 #define BUZZER_FREQ_MIN            3
 #define BUZZER_FREQ_MAX            8000
 
+typedef enum {
+    BEEP_1, BEEP_2, BEEP_3
+} Beep;
+
 /* -----------------------------------------------------------------------------
 *                                          Functions
 * ------------------------------------------------------------------------------
@@ -62,9 +66,8 @@ void buzzerOpen();
 bool buzzerSetFrequency(uint16_t frequency);
 void buzzerClose(void);
 
-
-void playSong(Song *song);
-
+void Buzzer_playSong(Song *song);
+void Buzzer_mustBeep(Song *beep);
 void Buzzer_register();
 
 #endif

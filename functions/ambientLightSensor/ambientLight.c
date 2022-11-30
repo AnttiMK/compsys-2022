@@ -81,7 +81,7 @@ static void nightTask(UArg arg0, UArg arg1) {
                  * in going back into light.
                  */
 
-                playSong(sleep());
+                Buzzer_playSong(sleep());
 
                 sendMessage("id:2420,MSG1:Sleeping");
 
@@ -92,7 +92,7 @@ static void nightTask(UArg arg0, UArg arg1) {
                 }
 
                 sendMessage("id:2420,MSG1:Awake");
-                playSong(wakeup());
+                Buzzer_playSong(wakeup());
                 i = 0;
             }
             i++;

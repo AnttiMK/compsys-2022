@@ -40,8 +40,9 @@ enum dataState {
 
 enum dataState mpuDataState = NOT_READY;
 enum dataState ambientDataState = NOT_READY;
+enum dataState batteryDataState = NOT_READY;
 
-bool startsWith(const char *a, const char *b) {
+static bool startsWith(const char *a, const char *b) {
     if (strncmp(a, b, strlen(b)) == 0) return 1;
     return 0;
 }
@@ -51,9 +52,9 @@ static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
     //Checking if ID matches device
     if (startsWith(rxBuf, "2420")) {
 
-        //if BEEP then beep2
-        if (strcmp((const char*) uartBuffer, "2420,BEEP") == 0) {
-            playSong(beep2());
+        //if BEEP then beep2,
+        if (strstr(uartBuffer, "BEEP") != NULL) {
+            Buzzer_mustBeep(beep2());
         }
     }
 
@@ -129,10 +130,15 @@ static void uartTask(UArg arg0, UArg arg1) {
             sendMessage("id:2420,light:%.4f,session:end", AmbientLight_amount);
         }
 
+        if (batteryDataState == READY) {
+
+        }
+
         uint32_t batt_reg = HWREG(AON_BATMON_BASE + AON_BATMON_O_BAT);
         int batt_int = (batt_reg & 896) >> 8;
         uint8_t batt_frac = (batt_reg & 127);
         double batt_value = batt_int + binFracToDec(batt_frac);
+<<<<<<< Updated upstream
         // Sends battery state to backend
         sendMessage("battery: %f", batt_value);
 
@@ -155,6 +161,12 @@ static void uartTask(UArg arg0, UArg arg1) {
 //        System_flush();
 
         // Once per second, you can modify this
+=======
+
+        // sendMessage("battery: %f", batt_value);
+
+
+>>>>>>> Stashed changes
         Task_sleep(250000 / Clock_tickPeriod);
     }
 }
@@ -180,5 +192,9 @@ void UART_notifyMpuDataReady() {
 }
 
 void UART_notifyAmbientDataReady() {
+    ambientDataState = READY;
+}
+
+void UART_notifyBatteryDataReady() {
     ambientDataState = READY;
 }
