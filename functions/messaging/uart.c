@@ -50,10 +50,10 @@ static bool startsWith(const char *a, const char *b) {
 static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
 
     //Checking if ID matches device
-    if (startsWith(rxBuf, "2420")) {
+    if (startsWith((const char *) rxBuf, "2420")) {
 
         //if BEEP then beep2,
-        if (strstr(uartBuffer, "BEEP") != NULL) {
+        if (strstr((const char *) uartBuffer, "BEEP") != NULL) {
             Buzzer_mustBeep(beep2());
         }
     }
