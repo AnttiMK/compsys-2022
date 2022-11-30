@@ -37,6 +37,7 @@ static I2C_Handle i2cMPU; // Own i2c-interface for MPU9250 sensor
 static I2C_Params i2cMPUParams;
 
 float MovementSensor_sensorData[7][100];
+float MovementSensor_sensorData2[4][100];
 
 // MPU power pin
 static PIN_Config MpuPinConfig[] = {
@@ -126,8 +127,8 @@ static void movementTask(UArg arg0, UArg arg1) {
 
             /*
             Idea, prosessoida dataa 25kpl kokoisissa ikkunoissa,
-            tarkistaa mill� akselilla on tapahtunut eniten muutosta ikkunan sis�ll� ja lis�� sen liike summaan.
-            t�ll� tavalla voidaan tunnistaa liikkeitä yhdestä int arvosta.
+            tarkistaa mill� akselilla on tapahtunut eniten muutosta ikkunan sis�ll� ja lis�� sen liike summaan.
+            t�ll� tavalla voidaan tunnistaa liikkeitä yhdestä int arvosta.
 
             Esim tehdään portaat --> ylös oikealle ylös oikealla 
              - ensimmäisessä ikkunussa Z arvo muuttuu eniten ja se on positiivinen joten liike + 5 * 10 ^0, liike = 5
@@ -261,6 +262,103 @@ static void movementTask(UArg arg0, UArg arg1) {
     // PIN_setOutputValue(hMpuPin,Board_MPU_POWER, Board_MPU_POWER_OFF);
 }
 
+static void movementTask2(UArg arg0, UArg arg1) {
+    float ax, ay, az, gx, gy, gz;
+
+    I2C_Params_init(&i2cMPUParams);
+    i2cMPUParams.bitRate = I2C_400kHz;
+    // Note the different configuration below
+    i2cMPUParams.custom = (uintptr_t) &i2cMPUCfg;
+
+    // MPU power on
+    PIN_setOutputValue(hMpuPin, Board_MPU_POWER, Board_MPU_POWER_ON);
+
+    // Wait 100ms for the MPU sensor to power up
+    Task_sleep(100000 / Clock_tickPeriod);
+    System_printf("MPU9250: Power ON\n");
+    System_flush();
+
+    // MPU open i2c
+    i2cMPU = I2C_open(Board_I2C, &i2cMPUParams);
+    if (i2cMPU == NULL) {
+        System_abort("Error Initializing I2CMPU\n");
+    }
+
+    // MPU setup and calibration
+    System_printf("MPU9250: Setup and calibration...\n");
+    System_flush();
+
+    mpu9250_setup(&i2cMPU);
+    I2C_close(i2cMPU);
+
+    System_printf("MPU9250: Setup and calibration OK\n");
+    System_flush();
+   
+
+    char msg[200];
+    int i, j;
+    float x1, x2, x3, y1, y2, y3, z1, z2, z3;
+    float fAvgX, fAvgY, fAvgZ;
+    x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.000001; // minimaalinen arvo ettei tuu nollalla jakao
+    i = j =  0;
+
+    // Loop forever
+    while (1) {
+
+       mpu9250_get_data(&i2cMPU, &ax, &ay, &az, &gx, &gy, &gz);
+
+        if ( j == 0) {
+            x1 = ax;
+            y1 = ay;
+            z1 = az;
+            j++;
+
+        } if ( j == 1) {
+            x2 = ax;
+            y2 = ay;
+            z2 = az;
+            j++;
+
+        } else {
+            x3 = ax;
+            y3 = ay;
+            z3 = az;
+            j = 0;
+
+        }
+        
+        fAvgX = (x1 + x2 + x3) / 3; // liukuva keskiarvo 3 edelliselle kerätylle arvolle
+        fAvgY = (y1 + y2 + y3) / 3;
+        fAvgZ = (z1 + z2 + z3) / 3;
+
+        // rajat arvot pitää vaihtaa oikeiksi
+        if ((fAvgX + fAvgY + fAvgZ > 0.01) && (fAvgX + fAvgY + fAvgZ < 1000.0) && i < 100) {  // niin kauan kun saadaan oikeita tai taulukon koko ei pauku yli kerätään dataa
+            MovementSensor_sensorData2[0][i] = (float) i * 0.05;
+            MovementSensor_sensorData2[1][i] = fAvgX;
+            MovementSensor_sensorData2[2][i] = fAvgY;
+            MovementSensor_sensorData2[3][i] = fAvgZ;
+            i++;
+        } 
+        
+        else {
+
+            if (i > 0) { // jos dataa on kerätty analysoidaan se
+                float varX, varY, varZ;
+                calculateVariance2(MovementSensor_sensorData2, &varX, &varY, &varY, i);
+                recognizeMove(varX, varY, varZ);
+            }
+            x1 = x2 = x3 = y1 = y2 = y3 = z1 = z2 = z3 = 0.000001; // nollataan arvot
+            i = 0;
+
+            playSong(beep1());
+            UART_notifyMpuDataReady();
+            I2C_close(i2cMPU);
+            /* Sleep 100ms */
+            Task_sleep(50000 / Clock_tickPeriod);  // mennään nukkumaan Onko liian lyhyt nukkumis aika ?? 
+        }
+    }
+}
+
 void MovementSensor_registerTask() {
     Task_Handle movementTaskHandle;
     Task_Params movementTaskParams;
@@ -276,6 +374,7 @@ void MovementSensor_registerTask() {
     movementTaskParams.priority = 2;
     movementTaskHandle = Task_create(movementTask, &movementTaskParams,
     NULL);
+    // movementTaskHandle = Task_create(movementTask2, &movementTaskParams, NULL);
     if (movementTaskHandle == NULL) {
         System_abort("Task create failed!");
     }

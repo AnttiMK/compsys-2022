@@ -340,3 +340,34 @@ void movmentValue2(float data[7][100], int *movment, int index, int dataIndex) {
         }
     }
 }
+
+void calculateVariance2(float data[4][100], float *varX, float *varY, float *varZ, int count) {
+
+    float averageX, sumX = 0.0, sum1X = 0.0;
+    float averageY, sumY = 0.0, sum1Y = 0.0;
+    float averageZ, sumZ = 0.0, sum1Z = 0.0;
+
+
+    int i;
+    for (i = 0; i < count; ++i) {
+        sumX += data[1][i];
+        sumY += data[2][i];
+        sumZ += data[3][i];
+    }
+
+    averageX = sumX / count;
+    averageY = sumY / count;
+    averageZ = sumZ / count;
+
+    for (i = 0; i < count; ++i) {
+
+        sum1X = sum1X + pow((data[1][i] - averageX), 2);
+        sum1Y = sum1Y + pow((data[2][i] - averageY), 2);
+        sum1Z = sum1Z + pow((data[3][i] - averageZ), 2);
+
+    }
+
+    *varX = sum1X / count;
+    *varY = sum1Y / count;
+    *varZ = sum1Z / count;
+}
