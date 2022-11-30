@@ -233,7 +233,7 @@ static int beep2_melody[] = {
 };
 
 Song *beep2() {
-    beep2_beep.tempo = 300;
+    beep2_beep.tempo = 400;
     beep2_beep.melody = beep2_melody;
     return &beep2_beep;
 }

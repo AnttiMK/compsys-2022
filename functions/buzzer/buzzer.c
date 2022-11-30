@@ -79,6 +79,9 @@ static PIN_Config buzzerConfig[] = {
 static bool mustBeep = false;
 static Song toBeep;
 
+static bool mustPlay = false;
+static Song toPlay;
+
 
 /* -----------------------------------------------------------------------------
 *  Public Functions
@@ -204,10 +207,20 @@ void Buzzer_mustBeep(Song *beep) {
     toBeep = *beep;
 }
 
+void Buzzer_mustPlaySong(Song *song) {
+    mustPlay = true;
+    toPlay = *song;
+}
+
 static void buzzerTask(UArg arg0, UArg arg1) {
     while (1) {
         if (mustBeep == true) {
+            mustBeep = false;
             Buzzer_playSong(&toBeep);
+        }
+        if (mustPlay == true) {
+            mustPlay = false;
+            Buzzer_playSong(&toPlay);
         }
         Task_sleep(100000 / Clock_tickPeriod);
     };

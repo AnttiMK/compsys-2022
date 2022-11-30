@@ -1,3 +1,12 @@
+/*
+ * Project Tamagotchi
+ *
+ * -- Authors --
+ * Antti Koponen, akoponen21@student.oulu.fi
+ * Joonas Tapaninaho, jtapanin21@student.oulu.fi
+ * Matias Paavilainen, mpaavila21@student.oulu.fi
+ */
+
 /* C Standard library */
 #include <stdio.h>
 
@@ -15,16 +24,11 @@
 #include "sensors/mpu9250.h"
 #include <functions/buttons/buttons.h>
 #include <functions/buzzer/buzzer.h>
-#include <functions/ambientLightSensor/ambientLight.h>
-#include <functions/movementSensor/movementSensor.h>
+#include <functions/sensors/sensors.h>
 #include <functions/messaging/uart.h>
 #include <functions/messaging/wireless.h>
 
-void clockTask(UArg arg0, UArg arg1) {
-
-}
-
-Int main(void) {
+int main(void) {
     // Task variables
 
     // Initialize board
@@ -39,17 +43,14 @@ Int main(void) {
     // Registers Uart and its Tasks
     UART_registerTask();
 
-    // Registers Movment sensor and its Tasks
-    MovementSensor_registerTask();
-
-    // Registers Light sensor and its Tasks
-    AmbientLight_registerTask();
+    // testing 123
+    Sensors_registerTask();
 
     // Registers buttons and their Tasks
     Buttons_registerTasks();
 
     // Registers Buzzer and its Tasks
-    //Buzzer_register();
+    Buzzer_register();
     /* Sanity check */
     System_printf("Hello world!\n");
     System_flush();

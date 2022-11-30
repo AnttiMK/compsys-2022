@@ -49,19 +49,24 @@ enum state {
 enum state auxButtonState = OPEN;
 enum state pwrButtonState = OPEN;
 
-static PIN_Handle ledHandle;
-static PIN_State ledState;
+static PIN_Handle led1Handle;
+static PIN_Handle led2Handle;
+static PIN_State led1State;
+static PIN_State led2State;
 static int menuState = 0;
 
-PIN_Config ledConfig[] = {
+PIN_Config led1Config[] = {
 Board_LED1 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
-                           PIN_TERMINATE };
+                            PIN_TERMINATE };
+PIN_Config led2Config[] = {
+Board_LED2 | PIN_GPIO_OUTPUT_EN | PIN_GPIO_LOW | PIN_PUSHPULL | PIN_DRVSTR_MAX,
+                            PIN_TERMINATE };
 
 static void auxButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     if (PINCC26XX_getInputValue(pinId) == 0) {
-        uint_t pinValue = PIN_getOutputValue( Board_LED1);
+        uint_t pinValue = PINCC26XX_getOutputValue( Board_LED1);
         pinValue = !pinValue;
-        PIN_setOutputValue(ledHandle, Board_LED1, pinValue);
+        PIN_setOutputValue(led1Handle, Board_LED1, pinValue);
         auxButtonState = PRESSED;
     } else {
         auxButtonState = OPEN;
@@ -76,45 +81,18 @@ static void pwrButtonFxn(PIN_Handle handle, PIN_Id pinId) {
     }
 }
 
-/*
- static void auxButtonTask0(UArg arg0, UArg arg1) {
- int increment = 0;
- while (1) {
- if (auxButtonState == PRESSED) {
- increment++;
- } else {
- if (increment > 10) {
- playSong(nokia());
- }
-
- increment = 0;
- }
- Task_sleep(100000 / Clock_tickPeriod);
- }
- }
- */
-
-/*
-
- auxButtonTask2 ja pwrButtonTask2 menu rakenne testausta varten. Esimerkiksi käynnistyessä
- power ja aux nappi, lyhyt painallus aux nappia = esim syönti funktio. Pitkä painallus aux nappia =
- menu value = 1, jolloin lyhyt painallus power nappia = soittaa tkn,
- lyhyt painallus aux nappia = soittaa mario, pitkä painallus aux nappia = menee pois menu tilasta
-
- */
-
 // Handler function for auxButton
-
 static void auxButtonTask(UArg arg0, UArg arg1) {
     int increment = 0;  // Adding increment value as long as buttons is pressed
     while (1) {
         // Checks if menu state is active
-        if (menuState == 1) { 
-            if (auxButtonState == PRESSED) { 
+        if (menuState == 1) {
+            if (auxButtonState == PRESSED) {
                 increment++;
             } else {
                 if (increment > 10) {
                     menuState = 0;
+                    PINCC26XX_setOutputValue(Board_LED2, 0);
                 } else if (increment > 0) {
                     Buzzer_playSong(mario());
                 }
@@ -126,9 +104,9 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
             } else {
                 if (increment > 10) {
                     menuState = 1;
-                }
-                else if (increment > 0) {
-                    sendMessage("id:2420,EAT:1");  // Sends EAT command to backend
+                    PINCC26XX_setOutputValue(Board_LED2, 1);
+                } else if (increment > 0) {
+                    UART_notifyEat(); // Send EAT command to backend
                 }
                 increment = 0;
             }
@@ -146,22 +124,31 @@ static void pwrButtonTask(UArg arg0, UArg arg1) {
         if (pwrButtonState == PRESSED) {
             increment++;
         } else {
-            if (increment > 1 && increment < 30) {
-                increment = 0;
-                MovementSensor_collectData();
-            }
+            if (menuState == 1) {
+                if (increment > 1 && increment < 30) {
+                    increment = 0;
+                    Buzzer_playSong(nokia());
+                }
+            } else {
+                if (increment > 1 && increment < 30) {
+                    increment = 0;
+                    uint_t pinValue = PINCC26XX_getOutputValue( Board_LED2);
+                    pinValue = !pinValue;
+                    PIN_setOutputValue(led1Handle, Board_LED2, pinValue);
+                }
 
-            if (increment >= 30) {
-                increment = 0;
-                Buzzer_playSong(nokia());
-                PIN_close(pwrBtnHandle);
-                PINCC26XX_setWakeup(pwrBtnWakeupConfig);
-                Power_shutdown(NULL, 0);
-            }
+                if (increment >= 30) {
+                    increment = 0;
+                    Buzzer_playSong(nokia());
+                    PIN_close(pwrBtnHandle);
+                    PINCC26XX_setWakeup(pwrBtnWakeupConfig);
+                    Power_shutdown(NULL, 0);
+                }
 
-            if (menuState == 1 && increment > 0 && increment < 30) {
-                increment = 0;
-                Buzzer_playSong(tkn());
+                if (menuState == 1 && increment > 0 && increment < 30) {
+                    increment = 0;
+                    Buzzer_playSong(tkn());
+                }
             }
         }
 
@@ -191,14 +178,12 @@ static void pwrButtonTask(UArg arg0, UArg arg1) {
 
  */
 
-
 // Register buttons Tasks
-
 static void registerTasks() {
-    Task_Params auxBtnTaskParams; 
+    Task_Params auxBtnTaskParams;
     Task_Params_init(&auxBtnTaskParams);
     auxBtnTaskParams.stackSize = STACKSIZE; // Determines stack size for auxButton
-    auxBtnTaskParams.stack = &auxBtnTaskStack; 
+    auxBtnTaskParams.stack = &auxBtnTaskStack;
     auxBtnTaskParams.priority = 2; // Determines task priority auxButton
 
     Task_Params pwrBtnTaskParams;
@@ -243,9 +228,14 @@ void Buttons_registerTasks() {
         System_abort("Error registering power button callback function");
     }
 
-    ledHandle = PIN_open(&ledState, ledConfig);
-    if (!ledHandle) {
-        System_abort("Error initializing LED pin\n");
+    led1Handle = PIN_open(&led1State, led1Config);
+    if (!led1Handle) {
+        System_abort("Error initializing LED 1 pin\n");
+    }
+
+    led2Handle = PIN_open(&led2State, led2Config);
+    if (!led2Handle) {
+        System_abort("Error initializing LED 2 pin\n");
     }
 
     registerTasks();

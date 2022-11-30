@@ -367,7 +367,32 @@ void calculateVariance2(float data[4][100], float *varX, float *varY, float *var
 
     }
 
-    *varX = sum1X / count;
-    *varY = sum1Y / count;
-    *varZ = sum1Z / count;
+    *varX = sum1X * 100 / count;
+    *varY = sum1Y * 100 / count;
+    *varZ = sum1Z * 100 / count;
+}
+
+Move recognizeMove(float x, float y, float z) {
+    if (x <= 1 && y <= 2 && z >= 5) {
+//        System_printf("Nosto ylös\n");
+//        System_flush();
+        return LIFT;
+    } else if (x <= 1.5 && y >= 5 && z <= 1.5) {
+//        System_printf("Liikutus sivuttain pöydällä\n");
+//        System_flush();
+        return SLIDE;
+    } else if (x <= 4 && y >= 7 && z >= 13) {
+//        System_printf("Pöydällä hyppyytys\n");
+//        System_flush();
+        return JUMP;
+    } else if (x <= 2 && y >= 4 && z >= 4) {
+//        System_printf("Porrasliike\n");
+//        System_flush();
+        return STAIRS;
+    } else {
+//        System_printf("Ei tunnistettua liikettä!\n");
+//        System_flush();
+        return NONE;
+    }
+
 }

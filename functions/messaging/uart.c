@@ -19,9 +19,8 @@
 #include <ti/drivers/UART.h>
 #include "Board.h"
 
-#include <functions/movementSensor/movementSensor.h>
-#include <functions/ambientLightSensor/ambientLight.h>
-#include "functions/buzzer/buzzer.h"
+#include <functions/sensors/sensors.h>
+#include <functions/buzzer/buzzer.h>
 #include <util/math.h>
 
 #include <driverlib/aon_batmon.h>
@@ -32,6 +31,7 @@ Char uartTaskStack[STACKSIZE];
 static UART_Handle uart;
 static char writeBuffer[90];
 static uint8_t uartBuffer[80]; // Reception buffer
+static int mpuIndex = 0;
 
 // Determines data states
 enum dataState {
@@ -41,6 +41,11 @@ enum dataState {
 enum dataState mpuDataState = NOT_READY;
 enum dataState ambientDataState = NOT_READY;
 enum dataState batteryDataState = NOT_READY;
+enum dataState pressureDataState = NOT_READY;
+enum dataState tempDataState = NOT_READY;
+static bool moveRecognized = false;
+static Move recognizedMove;
+static bool shouldEat = false;
 
 static bool startsWith(const char *a, const char *b) {
     if (strncmp(a, b, strlen(b)) == 0) return 1;
@@ -48,18 +53,21 @@ static bool startsWith(const char *a, const char *b) {
 }
 
 static void uartHandler(UART_Handle uart, void *rxBuf, size_t len) {
-
     //Checking if ID matches device
-    if (startsWith((const char *) rxBuf, "2420")) {
+    if (startsWith((const char*) rxBuf, "2420")) {
 
         //if BEEP then beep2,
-        if (strstr((const char *) uartBuffer, "BEEP") != NULL) {
+        if (strstr((const char*) uartBuffer, "BEEP") != NULL) {
             Buzzer_mustBeep(beep2());
         }
-    }
 
+        if (strstr((const char*) uartBuffer, "Too late") != NULL) {
+                    Buzzer_mustPlaySong(sleep());
+                }
+    }
+    memset(uartBuffer, 0, 80);
     // K�sittelij�n viimeisen� asiana siirryt��n odottamaan uutta keskeytyst�..
-    UART_read(uart, rxBuf, 80);
+    UART_read(uart, uartBuffer, 80);
 }
 
 // Sends messages to backend
@@ -108,59 +116,58 @@ static void uartTask(UArg arg0, UArg arg1) {
             sendMessage("id:2420,session:start");
 
             int i;
-            for (i = 0; i < 100; ++i) {
+            for (i = 0; i < mpuIndex; ++i) {
                 // Sends movement data to backend
                 sendMessage(
                         "id:2420,time:%.0f,ax:%.4f,ay:%.4f,az:%.4f,gx:%.4f,gy:%.4f,gz:%.4f",
-                        MovementSensor_sensorData[0][i] * 1000,
-                        MovementSensor_sensorData[1][i],
-                        MovementSensor_sensorData[2][i],
-                        MovementSensor_sensorData[3][i],
-                        MovementSensor_sensorData[4][i],
-                        MovementSensor_sensorData[5][i],
-                        MovementSensor_sensorData[6][i]);
+                        Sensors_mpuData[0][i] * 1000, Sensors_mpuData[1][i],
+                        Sensors_mpuData[2][i], Sensors_mpuData[3][i],
+                        Sensors_mpuData[4][i], Sensors_mpuData[5][i],
+                        Sensors_mpuData[6][i]);
             }
             sendMessage("id:2420,session:end");
         }
-        
+
+        /* Sends ambient light amount to backend when ready */
         if (ambientDataState == READY) {
             ambientDataState = NOT_READY;
             sendMessage("id:2420,session:start");
-            // Sends lightness data to backend
-            sendMessage("id:2420,light:%.4f,session:end", AmbientLight_amount);
+            sendMessage("id:2420,light:%.4f,session:end", Sensors_ambientLight);
         }
 
-        if (batteryDataState == READY) {
-
+        /* Calculate battery data and send to msgbox 2 along with pressure data */
+        if (pressureDataState == READY) {
+            pressureDataState = NOT_READY;
+            uint32_t batt_reg = HWREG(AON_BATMON_BASE + AON_BATMON_O_BAT);
+            int batt_int = (batt_reg & 896) >> 8;
+            uint8_t batt_frac = (batt_reg & 127);
+            double batt_value = batt_int + binFracToDec(batt_frac);
+            sendMessage("id:2420,MSG2:Battery: %.2fV - Air pressure: %.2fhPa",
+                        batt_value, Sensors_airPressure);
+            sendMessage("id:2420,session:start");
+            sendMessage("id:2420,press:%.4f,session:end", Sensors_ambientLight);
         }
 
-        uint32_t batt_reg = HWREG(AON_BATMON_BASE + AON_BATMON_O_BAT);
-        int batt_int = (batt_reg & 896) >> 8;
-        uint8_t batt_frac = (batt_reg & 127);
-        double batt_value = batt_int + binFracToDec(batt_frac);
+        if (moveRecognized == true) {
+            moveRecognized = false;
+            if (recognizedMove == LIFT) {
+                sendMessage("id:2420,EXERCISE:1,MSG1:Exercise move recognized");
+            } else if (recognizedMove == SLIDE) {
+                sendMessage("id:2420,PET:2,MSG1:Pet move recognized");
+            } else if (recognizedMove == JUMP) {
+                sendMessage("id:2420,EXERCISE:2,MSG1:Exercise move recognized");
+            } else if (recognizedMove == STAIRS) {
+                sendMessage("id:2420,EXERCISE:3,MSG1:Exercise move recognized");
+            } else {
+                sendMessage("id:2420,MSG1:Movement not recognized");
+            }
+        }
 
-        // Sends battery state to backend
-        sendMessage("battery: %f", batt_value);
+        if (shouldEat == true) {
+            shouldEat = false;
+            sendMessage("id:2420,EAT:1");
+        }
 
-
-
-
-        // Vastaanotetaan 1 merkki kerrallaan input-muuttujaan
-//        UART_read(uart, &input, 29);
-//        // L�hetet��n merkkijono takaisin
-//        sprintf(echo_msg, "Received: %c\n", input);
-//        System_printf(echo_msg);
-//        System_flush();
-
-        // JTKJ: Teht�v� 4. L�het� sama merkkijono UARTilla
-        // JTKJ: Exercise 4. Send the same sensor data string with UART
-//        sprintf(ping_msg, "id:420,ping");
-//        UART_write(uart, ping_msg, strlen(ping_msg) + 1);
-        // Just for sanity check for exercise, you can comment this out
-//        System_printf("uartTask\n");
-//        System_flush();
-
-        // Once per second, you can modify this
         Task_sleep(250000 / Clock_tickPeriod);
     }
 }
@@ -181,14 +188,32 @@ void UART_registerTask() {
     }
 }
 
-void UART_notifyMpuDataReady() {
+void UART_notifyMpuDataReady(int index) {
     mpuDataState = READY;
+    mpuIndex = index;
 }
 
-void UART_notifyAmbientDataReady() {
+void UART_notifyLightDataReady() {
     ambientDataState = READY;
+}
+
+void UART_notifyTempDataReady() {
+    tempDataState = READY;
+}
+
+void UART_notifyPresDataReady() {
+    pressureDataState = READY;
 }
 
 void UART_notifyBatteryDataReady() {
     ambientDataState = READY;
+}
+
+void UART_notifyMoveRecognized(Move move) {
+    moveRecognized = true;
+    recognizedMove = move;
+}
+
+void UART_notifyEat() {
+    shouldEat = true;
 }

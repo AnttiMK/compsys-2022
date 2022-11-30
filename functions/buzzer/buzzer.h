@@ -68,6 +68,7 @@ void buzzerClose(void);
 
 void Buzzer_playSong(Song *song);
 void Buzzer_mustBeep(Song *beep);
+void Buzzer_mustPlaySong(Song *song);
 void Buzzer_register();
 
 #endif

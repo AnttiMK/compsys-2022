@@ -5,14 +5,18 @@
  *      Author: Joonas
  */
 
-#ifndef _MOVEMENTTASK_H_
-#define _MOVEMENTTASK_H_
+/*
+ * NOTE: Legacy code, has a new implementation in dataParser.c
+ */
 
-#include <math.h>
-#include <stdio.h>
-
-void recognizeMove(float x, float y, float z);
-void recognizeMove2(int movmentValue);
-void recognizeMove3(int movmentValue);
-
-#endif
+//#ifndef _MOVEMENTTASK_H_
+//#define _MOVEMENTTASK_H_
+//
+//#include <math.h>
+//#include <stdio.h>
+//
+//void recognizeMove(float x, float y, float z);
+//void recognizeMove2(int movmentValue);
+//void recognizeMove3(int movmentValue);
+//
+//#endif
