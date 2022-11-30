@@ -138,7 +138,7 @@ static void uartTask(UArg arg0, UArg arg1) {
         int batt_int = (batt_reg & 896) >> 8;
         uint8_t batt_frac = (batt_reg & 127);
         double batt_value = batt_int + binFracToDec(batt_frac);
-<<<<<<< Updated upstream
+
         // Sends battery state to backend
         sendMessage("battery: %f", batt_value);
 
@@ -161,12 +161,6 @@ static void uartTask(UArg arg0, UArg arg1) {
 //        System_flush();
 
         // Once per second, you can modify this
-=======
-
-        // sendMessage("battery: %f", batt_value);
-
-
->>>>>>> Stashed changes
         Task_sleep(250000 / Clock_tickPeriod);
     }
 }

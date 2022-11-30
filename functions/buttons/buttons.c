@@ -126,14 +126,9 @@ static void auxButtonTask(UArg arg0, UArg arg1) {
             } else {
                 if (increment > 10) {
                     menuState = 1;
-<<<<<<< Updated upstream
                 }
                 else if (increment > 0) {
                     sendMessage("id:2420,EAT:1");  // Sends EAT command to backend
-=======
-                } else if (increment > 0) {
-                    sendMessage("id:2420,EAT:1");
->>>>>>> Stashed changes
                 }
                 increment = 0;
             }

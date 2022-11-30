@@ -173,13 +173,7 @@ void buzzerClose(void)
  * Gracefully borrowed from https://github.com/robsoncouto/arduino-songs/
  * and adapted to our use case
  */
-<<<<<<< Updated upstream
-
-// Takes Song strutures as input 
-void playSong(Song *song) {
-=======
 void Buzzer_playSong(Song *song) {
->>>>>>> Stashed changes
     int wholenote = (60000 * 4) / song->tempo;
     int divider = 0, noteDuration = 0;
 
@@ -205,9 +199,6 @@ void Buzzer_playSong(Song *song) {
     } while (song->melody[thisNote] != -1);
 }
 
-<<<<<<< Updated upstream
-// Registers Buzzer Task
-=======
 void Buzzer_mustBeep(Song *beep) {
     mustBeep = true;
     toBeep = *beep;
@@ -221,8 +212,8 @@ static void buzzerTask(UArg arg0, UArg arg1) {
         Task_sleep(100000 / Clock_tickPeriod);
     };
 }
->>>>>>> Stashed changes
 
+// Registers buzzer task
 static void registerTask() {
     Task_Params buzzerTaskParams;
 

@@ -36,16 +36,11 @@ Int main(void) {
     Board_initI2C();
     Board_initUART();
 
-<<<<<<< Updated upstream
     // Registers Uart and its Tasks
-=======
-    /* Register all sensors, functions and related tasks */
->>>>>>> Stashed changes
     UART_registerTask();
 
     // Registers Movment sensor and its Tasks
     MovementSensor_registerTask();
-<<<<<<< Updated upstream
 
     // Registers Light sensor and its Tasks
     AmbientLight_registerTask();
@@ -55,13 +50,6 @@ Int main(void) {
 
     // Registers Buzzer and its Tasks
     //Buzzer_register();
-
-=======
-    AmbientLight_registerTask();
-    Buttons_registerTasks();
-    Buzzer_register();
->>>>>>> Stashed changes
-
     /* Sanity check */
     System_printf("Hello world!\n");
     System_flush();
